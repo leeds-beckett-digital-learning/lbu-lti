@@ -20,6 +20,7 @@ import io.jsonwebtoken.Claims;
 import java.util.List;
 
 /**
+ * Provides a super class for any Claim object that works like an indexed list.
  *
  * @author jon
  */
@@ -27,23 +28,45 @@ public abstract class ClaimList
 {
   public List list;
   
+  /**
+   * Construct from named field within generic claims.
+   * @param claims The generic jsonwebtoken claims object.
+   * @param name The name of the field in the claims to use.
+   */
   public ClaimList( Claims claims, String name )
   {
     list = (List)claims.get( name );
   }
  
+  /**
+   * The size of the list, i.e. the number of entries.
+   * @return The size.
+   */
   public int getSize()
   {
     if ( list == null ) return 0;
     return list.size();
   }
   
+  
+  /**
+   * Get a field from within this object at given position.
+   * 
+   * @param n The index of the field required.
+   * @return The native representation of the requested field.
+   */
   public Object getAsObject( int n )
   {
     if ( list == null || n<0 || n>=list.size() ) return null;
     return list.get( n );
   }
 
+  /**
+   * Get a field in string form from within this object at given position.
+   * 
+   * @param n The index of the field required.
+   * @return The return value of the toString method of the requested field.
+   */
   public String getAsString( int n )
   {
     Object value = getAsObject( n );

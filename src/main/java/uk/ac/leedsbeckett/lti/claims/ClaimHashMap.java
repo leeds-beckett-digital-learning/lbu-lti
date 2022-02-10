@@ -21,24 +21,41 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- *
+ * Provides a super class for any Claim object that works like a dictionary.
+ * 
  * @author jon
  */
 public abstract class ClaimHashMap
 {
   public HashMap map;
   
+  /**
+   * Construct from named field within generic claims.
+   * @param claims The generic jsonwebtoken claims object.
+   * @param name The name of the field in the claims to use.
+   */
   public ClaimHashMap( Claims claims, String name )
   {
     map = claims.get( name, HashMap.class );
   }
 
+  /**
+   * Get a named field from within this object.
+   * 
+   * @param name The name of the field required.
+   * @return The native representation of the requested field.
+   */
   public Object getAsObject( String name )
   {
     if ( map == null ) return null;
     return map.get( name );
   }
 
+  /**
+   * Get the string value of a named field within this object.
+   * @param name The name of the field required.
+   * @return The return value of the toString method of the requested field.
+   */
   public String getAsString( String name )
   {
     Object value = getAsObject( name );
@@ -46,6 +63,12 @@ public abstract class ClaimHashMap
     return value.toString();
   }
   
+  /**
+   * Get a field which is a List of values
+   * 
+   * @param name The name of the field required.
+   * @return A List if the field is a type of List otherwise null;
+   */
   public List getAsList( String name )
   {
     Object value = getAsObject( name );

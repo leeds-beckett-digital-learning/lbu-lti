@@ -26,7 +26,8 @@ import uk.ac.leedsbeckett.lti.LtiConfiguration.Client;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
- *
+ * Represents an LTI Message of the type that requests a tool launch.
+ * 
  * @author jon
  */
 public class LtiMessageLaunch
@@ -35,12 +36,24 @@ public class LtiMessageLaunch
   LtiState state;
   Claims claims;
   
+  /**
+   * Constructor uses an HttpServletRequest to find out the user id_token
+   * and a reference to an LtiState object.
+   * 
+   * @param request The HTTP request from the servlet that handles the launch request.
+   * @param state The LtiState that was created by the login servlet
+   */
   public LtiMessageLaunch( HttpServletRequest request, LtiState state )
   {
     this.request = request;
     this.state = state;
   }
   
+  /**
+   * Validates the claims carried by this message.
+   * 
+   * @throws LtiException Thrown if information is missing but mainly if the digital signature is invalid.
+   */
   public void validate() throws LtiException
   {
     if ( state == null )
@@ -68,11 +81,21 @@ public class LtiMessageLaunch
     state.clearNonce();  // To be sure it cannot be used again
   }
 
+  /** 
+   * Retrieve the secure claims.
+   * 
+   * @return The claims.
+   */
   public Claims getClaims()
   {
     return claims;
   }
 
+  /** 
+   * Retrieve the LTI state object
+   * 
+   * @return The state.
+   */
   public LtiState getState()
   {
     return state;

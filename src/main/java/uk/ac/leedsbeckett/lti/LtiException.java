@@ -24,6 +24,11 @@ package uk.ac.leedsbeckett.lti;
 public class LtiException extends Exception
 {
 
+  /**
+   * The only constructor.
+   * 
+   * @param string The message to include
+   */
   public LtiException( String string )
   {
     super( string );

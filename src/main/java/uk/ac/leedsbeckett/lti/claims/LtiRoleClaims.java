@@ -19,7 +19,8 @@ package uk.ac.leedsbeckett.lti.claims;
 import io.jsonwebtoken.Claims;
 
 /**
- *
+ * Represents the LTI role claim.
+ * 
  * @author jon
  */
 public class LtiRoleClaims extends ClaimList
@@ -29,6 +30,11 @@ public class LtiRoleClaims extends ClaimList
   Object o;
   boolean standardinstructor=false;
   
+  /**
+   * Construct from generic jsonwebtoken claims
+   * 
+   * @param claims The jsonwebtoken claims object.
+   */
   LtiRoleClaims( Claims claims )
   {
     super( claims, NAME );

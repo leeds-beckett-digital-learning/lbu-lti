@@ -22,7 +22,13 @@ import java.util.UUID;
 import uk.ac.leedsbeckett.lti.LtiConfiguration;
 
 /**
- *
+ * A state which represents a launch session with the tool. I.e. for a
+ * specific user of the platform that initiates the launch.  The same
+ * biological person may use the same web browser to access a second 
+ * platform to launch the same tool. This needs a separate LTI state 
+ * because this is a different platform user session using different
+ * user credentials.
+ * 
  * @author jon
  */
 public class LtiState
@@ -34,6 +40,12 @@ public class LtiState
   long timestamp;
   LtiConfiguration.Client client;
 
+  /**
+   * Construct a new state object for a given tool and prepare it for 
+   * authentication.
+   * 
+   * @param client The client (tool) configuration.
+   */
   public LtiState( LtiConfiguration.Client client )
   {
     id = UUID.randomUUID().toString();
@@ -47,26 +59,51 @@ public class LtiState
     this.client = client;
   }
 
+  /**
+   * Get the unique ID of this state object.
+   * 
+   * @return The unique ID.
+   */
   public String getId()
   {
     return id;
   }
 
+  /**
+   * Get the randomly generated nonce for use in authentication.
+   * 
+   * @return The nonce in string format.
+   */
   public String getNonce()
   {
     return nonce;
   }
 
+  /**
+   * Clear the nonce after it is no longer needed to reduce the
+   * impact of a hacking attempt.
+   * 
+   */
   public void clearNonce()
   {
     nonce = null;
   }
 
+  /**
+   * Find the timestamp of the creation of the state object.
+   * 
+   * @return Timestamp as a long.
+   */
   public long getTimestamp()
   {
     return timestamp;
   }
 
+  /**
+   * Get a reference to the configuration that was used to create this.
+   * 
+   * @return Client configuration.
+   */
   public LtiConfiguration.Client getClient()
   {
     return client;

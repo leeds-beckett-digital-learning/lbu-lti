@@ -33,15 +33,20 @@ import uk.ac.leedsbeckett.lti.claims.LtiClaims;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
- *
+ * An LTI tool should subclass this abstract class to implement the LTI
+ * launch functionality. The implementation needs to specify how to store
+ * state and how to forward the user to the suitable URL after the launch
+ * request has been processed and validated.
+ * 
  * @author jon
  */
 public abstract class LtiLaunchServlet extends HttpServlet
 {
 
   /**
-   * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-   * methods.
+   * Performs a number of checks against the launch request including
+   * validation of the digital signature. If all tests pass processLaunchRequest()
+   * in the subclass is called to forward the user to the final URL.
    *
    * @param request servlet request
    * @param response servlet response
@@ -116,9 +121,28 @@ public abstract class LtiLaunchServlet extends HttpServlet
     processLaunchRequest( new LtiClaims( ml.getClaims() ), ml.getState(), request, response );
   }
   
+  /**
+   * This method needs to be implemented in subclasses. It looks at the LTI state and the LTI
+   * Claims that have been validated and works out how to start the user's session with the
+   * tool and forward the user's browser to the right URL.
+   * 
+   * @param lticlaims The validated LTI claims.
+   * @param state The LTI state that was created during the login process
+   * @param request The HTTP request.
+   * @param response The HTTP response.
+   * @throws ServletException If a general HTTP exception occurs.
+   * @throws IOException If, for example, the network connection is lost while sending data.
+   */
   protected abstract void processLaunchRequest( LtiClaims lticlaims, LtiState state, HttpServletRequest request, HttpServletResponse response )
           throws ServletException, IOException;
   
+  /**
+   * Subclasses need to implement this method to tell the LTI library where LTI
+   * state is being stored between user HTTP requests.
+   * 
+   * @param context The servlet context.
+   * @return An LtiStateStore object.
+   */
   protected abstract LtiStateStore getLtiStateStore( ServletContext context );
   
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

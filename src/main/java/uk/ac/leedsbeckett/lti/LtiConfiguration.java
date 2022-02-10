@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,26 +35,39 @@ import org.apache.commons.lang3.StringUtils;
 
 
 /**
- *
+ * Represents the configuration of an LTI tool. Loads from a JSON file.
+ * Likely to be much changed in the future.
+ * 
  * @author jon
  */
 public class LtiConfiguration
 {
   String strpathconfig;
   HashMap<String,Issuer> issuermap = new HashMap<>();
-  PrivateKey privateKey;
-  PublicKey publicKey;
   
   String rawconfig;
   
   StringBuilder log = new StringBuilder();
   
 
+  /**
+   * Returns the debugging log message.
+   * 
+   * @return A string message.
+   */
   public String getLog()
   {
     return log.toString();
   }
   
+  /**
+   * Find the configuration for a particular tool given the ID of the
+   * issuer and the client ID of the tool.
+   * 
+   * @param issuername The ID of the issuer.
+   * @param client_id The ID of a client of the issuer.
+   * @return A client configuration object.
+   */
   public Client getClient( String issuername, String client_id )
   {
     Issuer issuer = issuermap.get( issuername );
@@ -63,37 +75,31 @@ public class LtiConfiguration
     return issuer.getClient( client_id );
   }
 
-  public PrivateKey getPrivateKey()
-  {
-    return privateKey;
-  }
-
-  public void setPrivateKey( PrivateKey privateKey )
-  {
-    this.privateKey = privateKey;
-  }
-
-  public PublicKey getPublicKey()
-  {
-    return publicKey;
-  }
-
-  public void setPublicKey( PublicKey publicKey )
-  {
-    this.publicKey = publicKey;
-  }
-  
-
+  /**
+   * The original JSON formatted text that was most recently loaded.
+   * 
+   * @return JSON formatted text.
+   */
   public String getRawConfiguration()
   {
     return rawconfig;
   }
   
+  /**
+   * The file name (path) that was last used to load configuration.
+   * 
+   * @return Path to file.
+   */
   public String getConfigFileName()
   {
     return strpathconfig;
   }
   
+  /**
+   * Load a configuration file in JSON format.
+   * 
+   * @param strpathconfig The file name (path) to load.
+   */
   public void load( String strpathconfig )
   {
     this.strpathconfig = strpathconfig;
@@ -124,6 +130,11 @@ public class LtiConfiguration
     }
   }
   
+  /**
+   * Load an issuer from a node within the JSON file.
+   * 
+   * @param issuernode The node containing an issuer.
+   */
   void loadIssuer( JsonNode issuernode )
   {
     String name = issuernode.get( "name" ).asText();
@@ -141,6 +152,12 @@ public class LtiConfiguration
     }
   }
   
+  /**
+   * Load a client (tool) from within an issuer (e.g. blackboard.com) configuration.
+   * 
+   * @param issuer The issuer to load into.
+   * @param clientnode The JSON node containing the config.
+   */
   void loadClient( Issuer issuer, JsonNode clientnode )
   {
     log.append( "client_id = " + clientnode.get( "client_id" ).asText()  + "\n");
@@ -177,6 +194,11 @@ public class LtiConfiguration
     issuer.putClient( client );
   } 
   
+  
+  /**
+   * Class represents the configuration related to a particular issuer, 
+   * e.g. from blackboard.com. 
+   */
   public class Issuer
   {
     String issuer;
@@ -198,6 +220,11 @@ public class LtiConfiguration
     }
   }
   
+  /**
+   * Represents the configuration of a specific client of an issuer. For
+   * example, this tool as defined by an application entry on 
+   * developer.blackboard.com
+   */
   public class Client
   {
     boolean bdefault;

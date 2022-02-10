@@ -20,7 +20,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- *
+ * A utility for encoding parameters and concatenating them into a query string.
+ * 
  * @author jon
  */
 public class QueryBuilder
@@ -28,11 +29,20 @@ public class QueryBuilder
   boolean started = false;
   StringBuilder sb = new StringBuilder();
 
+  /**
+   * Create a new builder with an initially empty query string.
+   */
   public QueryBuilder()
   {
     sb.append( "?" );
   }
   
+  /**
+   * Add a parameter to the query
+   * 
+   * @param name The name of the parameter.
+   * @param value The value of the parameter.
+   */
   public void add( String name, String value )
   {
     if ( started )
@@ -44,6 +54,11 @@ public class QueryBuilder
     sb.append( URLEncoder.encode( value, StandardCharsets.UTF_8 ) );
   }
   
+  /**
+   * Get the query that has been built.
+   * 
+   * @return The properly encoded query string including the ? character at the start.
+   */
   public String get()
   {
     return sb.toString();

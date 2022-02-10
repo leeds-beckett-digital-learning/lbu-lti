@@ -23,7 +23,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * A wrapper class for a standard jsonwebtoken Claims object. This provides
+ * access to parsed out LTI specific claims.
+ * 
  * @author jon
  */
 public class LtiClaims implements Claims
@@ -36,6 +38,11 @@ public class LtiClaims implements Claims
   LtiRoleClaims        ltiroles        = null;
   LtiToolPlatformClaim ltitoolplatform = null;
 
+  /**
+   * Constructs an object by wrapping a given claims object.
+   * 
+   * @param wrapped The claims to parse and wrap.
+   */
   public LtiClaims( Claims wrapped )
   {
     assert wrapped != null;
@@ -52,26 +59,51 @@ public class LtiClaims implements Claims
       ltitoolplatform = new LtiToolPlatformClaim( wrapped );
   }
 
+  /**
+   * Gets the parsed LtiContext claim.
+   * 
+   * @return The parsed object.
+   */
   public LtiContextClaim getLtiContext()
   {
     return lticontext;
   }
 
+  /**
+   * Gets the parsed LtiCustom claim.
+   * 
+   * @return The parsed object.
+   */
   public LtiCustomClaim getLtiCustom()
   {
     return lticustom;
   }
 
+  /**
+   * Gets the parsed LtiResource claim.
+   * 
+   * @return The parsed object.
+   */
   public LtiResourceClaim getLtiResource()
   {
     return ltiresource;
   }
 
+  /**
+   * Gets the parsed LtiRoles claim.
+   * 
+   * @return The parsed object.
+   */
   public LtiRoleClaims getLtiRoles()
   {
     return ltiroles;
   }
 
+  /**
+   * Gets the parsed LtiToolPlatform claim.
+   * 
+   * @return The parsed object.
+   */
   public LtiToolPlatformClaim getLtiToolPlatform()
   {
     return ltitoolplatform;

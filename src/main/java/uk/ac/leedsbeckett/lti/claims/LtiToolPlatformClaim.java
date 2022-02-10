@@ -19,13 +19,19 @@ package uk.ac.leedsbeckett.lti.claims;
 import io.jsonwebtoken.Claims;
 
 /**
- *
+ * Represents the LTI tool platform claim.
+ * 
  * @author jon
  */
 public class LtiToolPlatformClaim extends ClaimHashMap
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/tool_platform";
 
+  /**
+   * Construct from generic jsonwebtoken claims
+   * 
+   * @param claims The jsonwebtoken claims object.
+   */
   public LtiToolPlatformClaim( Claims claims )
   {
     super( claims, NAME );

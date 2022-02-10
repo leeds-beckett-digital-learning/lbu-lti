@@ -19,7 +19,8 @@ package uk.ac.leedsbeckett.lti.claims;
 import io.jsonwebtoken.Claims;
 
 /**
- *
+ * Represents the LTI custom claim.
+ * 
  * @author jon
  */
 public class LtiCustomClaim extends ClaimHashMap
@@ -28,6 +29,11 @@ public class LtiCustomClaim extends ClaimHashMap
   
   String toolType;
   
+  /**
+   * Construct from generic jsonwebtoken claims
+   * 
+   * @param claims The jsonwebtoken claims object.
+   */
   public LtiCustomClaim( Claims claims )
   {
     super( claims, NAME );

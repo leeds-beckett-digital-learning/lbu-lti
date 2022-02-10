@@ -17,11 +17,21 @@
 package uk.ac.leedsbeckett.lti.servlet;
 
 /**
- *
+ * A utility to construct an HTML page for checking browser support for
+ * cookies. It inserts a small amount of dynamic Javascript into a static
+ * page of HTML and javascript.
+ * 
  * @author jon
  */
 public class CookieCheckPage
 {
+  
+  /**
+   * Provide a page of HTML with insertion of some Javascript.
+   * 
+   * @param insert The Javascript to insert
+   * @return The complete page.
+   */
   public static String getPage( String insert )
   {
     return PAGE.replaceAll( "INSERT", insert );

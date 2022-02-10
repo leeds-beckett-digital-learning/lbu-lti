@@ -20,7 +20,9 @@ import java.util.HashMap;
 import uk.ac.leedsbeckett.lti.LtiConfiguration;
 
 /**
- *
+ * A utility class that stores LTI state. This will probably be subclassed
+ * by a tool implementation.
+ * 
  * @author jon
  */
 public class LtiStateStore
@@ -29,11 +31,24 @@ public class LtiStateStore
   
   HashMap<String,LtiState> map = new HashMap<>();
   
+  /**
+   * Subclasses will override this method if they want to use a state class
+   * which is a subclass of LtiState.
+   * 
+   * @param client The client configuration.
+   * @return An object of type LtiState or subclass thereof.
+   */
   protected LtiState newState( LtiConfiguration.Client client )
   {
     return new LtiState( client );    
   }
   
+  /**
+   * Instantiate and store a new state object.
+   * 
+   * @param client The client configuration.
+   * @return An object of type LtiState or subclass thereof.
+   */
   public LtiState createState( LtiConfiguration.Client client )
   {
     LtiState state = newState( client );
@@ -44,6 +59,12 @@ public class LtiStateStore
     return state;
   }
   
+  /**
+   * Get a state object keyed by its unique ID.
+   * 
+   * @param id The unique ID of the required state object.
+   * @return The state object or null if not found or timed out.
+   */
   public LtiState getState( String id )
   {
     LtiState state = null;

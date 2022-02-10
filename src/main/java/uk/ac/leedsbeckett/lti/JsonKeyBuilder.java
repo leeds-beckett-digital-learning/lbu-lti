@@ -25,15 +25,28 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 
 /**
- *
+ * This class takes a JSON representation of the components of an RSA public key 
+ * and produces a standard java.security.PublicKey object.
+ * 
  * @author jon
  */
 public class JsonKeyBuilder
 {
+  /**
+   * Takes a node from within a JSON document, read various properties and
+   * return a PublicKey object.
+   * 
+   * @param node The JSON node containing the key's component parts.
+   * @return A Java Security representation of the key which can be used for message validation.
+   * @throws LtiException Thrown if the key is not RSA type.
+   * @throws NoSuchAlgorithmException Should never be thrown.
+   * @throws NoSuchPaddingException Only thrown if the key is dodgy.
+   * @throws InvalidKeySpecException Only thrown if the key is dodgy.
+   * @throws InvalidKeyException Only thrown if the key is dodgy.
+   */
   public static PublicKey build( JsonNode node ) throws LtiException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException
   {
     String keyType = node.get( "kty" ).asText();
@@ -50,8 +63,6 @@ public class JsonKeyBuilder
     BigInteger exponent = new BigInteger(1, expBytes);
 
     KeyFactory factory = KeyFactory.getInstance("RSA");
-    Cipher cipher = Cipher.getInstance("RSA");
-    String input = "test";
 
     RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(modulo, exponent);
     return factory.generatePublic(pubSpec);

@@ -19,7 +19,8 @@ package uk.ac.leedsbeckett.lti.claims;
 import io.jsonwebtoken.Claims;
 
 /**
- *
+ * Represents the LTI resource claim.
+ * 
  * @author jon
  */
 public class LtiResourceClaim extends ClaimHashMap
@@ -30,6 +31,11 @@ public class LtiResourceClaim extends ClaimHashMap
   String description;
   String title;
   
+  /**
+   * Construct from generic jsonwebtoken claims
+   * 
+   * @param claims The jsonwebtoken claims object.
+   */
   public LtiResourceClaim( Claims claims )
   {
     super( claims, NAME );

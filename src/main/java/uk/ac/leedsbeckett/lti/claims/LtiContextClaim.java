@@ -20,7 +20,8 @@ import io.jsonwebtoken.Claims;
 import java.util.List;
 
 /**
- *
+ * Represents the LTI context claim.
+ * 
  * @author jon
  */
 public class LtiContextClaim extends ClaimHashMap
@@ -29,6 +30,11 @@ public class LtiContextClaim extends ClaimHashMap
   
   List types;
   
+  /**
+   * Construct from generic jsonwebtoken claims
+   * 
+   * @param claims The jsonwebtoken claims object.
+   */
   LtiContextClaim( Claims claims )
   {
     super( claims, NAME );

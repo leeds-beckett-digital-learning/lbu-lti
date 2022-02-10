@@ -29,16 +29,19 @@ import org.apache.commons.lang3.StringUtils;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
+ * An LTI tool should subclass this abstract class to implement the LTI
+ * login functionality. The implementation needs to specify how to store
+ * state.
  *
  * @author jon
  */
-
 public abstract class LtiLoginServlet extends HttpServlet
 {
   
   /**
-   * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-   * methods.
+   * If necessary sends the user a cookie check page which will present an
+   * error if cookies aren't enabled. Otherwise creates a new LTI state 
+   * object and starts the process of authenticating the user.
    *
    * @param request servlet request
    * @param response servlet response
@@ -59,6 +62,15 @@ public abstract class LtiLoginServlet extends HttpServlet
       forwardToVerification( request, response );    
   }
 
+  /**
+   * Inserts a couple of Javascript variables into a standard cookie check
+   * web page.
+   * 
+   * @param request Servlet request
+   * @param response Servlet response
+   * @throws ServletException Should never be thrown.
+   * @throws IOException Thrown if network connection is lost during data transfer.
+   */
   protected void sendCookieCheckPage(HttpServletRequest request, HttpServletResponse response)
           throws ServletException, IOException
   {
@@ -92,6 +104,16 @@ public abstract class LtiLoginServlet extends HttpServlet
   
   } 
   
+  /**
+   * Checks that the login refers to our tool, constructs some request parameters
+   * and forwards the user to the configured authentication login url. 
+   * (E.g. on developer.blackboard.com)
+   * 
+   * @param request The HTTP request.
+   * @param response The HTTP response.
+   * @throws ServletException If there is a problem working out how to forward the user's browser.
+   * @throws IOException If, for example, the network connection is broken when sending data.
+   */
   protected void forwardToVerification(HttpServletRequest request, HttpServletResponse response)
           throws ServletException, IOException
   {
@@ -144,7 +166,19 @@ public abstract class LtiLoginServlet extends HttpServlet
     response.setHeader( "Location", client.getAuthLoginUrl() + qb.get() );
   }
   
+  /**
+   * Implementations use this method to tell this object how to get the configuration.
+   * 
+   * @param context The servlet context.
+   * @return An LtiConfiguration object.
+   */
   protected abstract LtiConfiguration getLtiConfiguration( ServletContext context );
+  
+  /**
+   * Implementations use this method to tell this object how to store state.
+   * @param context The servlet context.
+   * @return An LtiStateStore object.
+   */
   protected abstract LtiStateStore getLtiStateStore( ServletContext context );
   
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

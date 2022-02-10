@@ -1,0 +1,264 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package uk.ac.leedsbeckett.lti;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+
+
+/**
+ *
+ * @author jon
+ */
+public class LtiConfiguration
+{
+  String strpathconfig;
+  HashMap<String,Issuer> issuermap = new HashMap<>();
+  PrivateKey privateKey;
+  PublicKey publicKey;
+  
+  String rawconfig;
+  
+  StringBuilder log = new StringBuilder();
+  
+
+  public String getLog()
+  {
+    return log.toString();
+  }
+  
+  public Client getClient( String issuername, String client_id )
+  {
+    Issuer issuer = issuermap.get( issuername );
+    if ( issuer == null ) return null;
+    return issuer.getClient( client_id );
+  }
+
+  public PrivateKey getPrivateKey()
+  {
+    return privateKey;
+  }
+
+  public void setPrivateKey( PrivateKey privateKey )
+  {
+    this.privateKey = privateKey;
+  }
+
+  public PublicKey getPublicKey()
+  {
+    return publicKey;
+  }
+
+  public void setPublicKey( PublicKey publicKey )
+  {
+    this.publicKey = publicKey;
+  }
+  
+
+  public String getRawConfiguration()
+  {
+    return rawconfig;
+  }
+  
+  public String getConfigFileName()
+  {
+    return strpathconfig;
+  }
+  
+  public void load( String strpathconfig )
+  {
+    this.strpathconfig = strpathconfig;
+    issuermap.clear();
+    
+    try
+    {
+      rawconfig = FileUtils.readFileToString( new File( strpathconfig ), StandardCharsets.UTF_8 );      
+      ObjectMapper mapper = new ObjectMapper();
+      JsonFactory factory = mapper.getFactory();
+      JsonParser parser = factory.createParser( rawconfig );
+      JsonNode node = mapper.readTree(parser);
+      if ( node.isObject() )
+      {
+        log.append( "\nLoading base JSON object.\n" );
+        JsonNode issuersnode = node.get( "issuers" );
+        if ( issuersnode!=null && issuersnode.isArray() )
+          for ( Iterator<JsonNode> it = issuersnode.elements(); it.hasNext(); )
+            loadIssuer( it.next() );
+      }
+    }
+    catch ( FileNotFoundException ex )
+    {
+      Logger.getLogger(LtiConfiguration.class.getName() ).log( Level.SEVERE, null, ex );
+    } catch ( IOException ex )
+    {
+      Logger.getLogger(LtiConfiguration.class.getName() ).log( Level.SEVERE, null, ex );
+    }
+  }
+  
+  void loadIssuer( JsonNode issuernode )
+  {
+    String name = issuernode.get( "name" ).asText();
+    log.append( "Loading issuer " + name + "\n" );
+    JsonNode clients = issuernode.get( "clients" );
+    Issuer issuer = new Issuer( name );
+    issuermap.put( name, issuer );
+    if ( !clients.isArray() )
+      return;
+    for ( Iterator<JsonNode> it = clients.elements(); it.hasNext(); )
+    {
+      JsonNode clientnode = it.next();
+      if ( clientnode.isObject() )
+        loadClient( issuer, clientnode );
+    }
+  }
+  
+  void loadClient( Issuer issuer, JsonNode clientnode )
+  {
+    log.append( "client_id = " + clientnode.get( "client_id" ).asText()  + "\n");
+    Client client = new Client( clientnode.get( "client_id" ).asText() );
+    
+    client.setDefault(        clientnode.get( "default" ).asBoolean()          );
+    client.setAuthLoginUrl(   clientnode.get( "auth_login_url" ).asText()      );
+    client.setAuthTokenUrl(   clientnode.get( "auth_token_url" ).asText()      );
+    
+    try
+    {
+      client.setPublicKey( JsonKeyBuilder.build( clientnode.get( "public_key" ) ) );
+    }
+    catch ( Exception e )
+    {
+      e.printStackTrace();
+      client.setPublicKey(  null );
+      log.append( "\nUnable to load public key for this client.\n" );
+      log.append( e.getMessage() );
+    }
+    
+    JsonNode depnodea = clientnode.get( "deployment_ids" );
+    ArrayList<String> list = new ArrayList<>();
+    if ( depnodea.isArray() )
+    {
+      for ( Iterator<JsonNode> it = depnodea.elements(); it.hasNext(); )
+      {
+        JsonNode depnode = it.next();
+        if ( depnode.isTextual() && !StringUtils.isEmpty( depnode.asText() ) )
+          list.add( depnode.asText() );
+      }
+    }
+    client.setDeploymentIds( list.toArray( new String[list.size()] ) );
+    issuer.putClient( client );
+  } 
+  
+  public class Issuer
+  {
+    String issuer;
+    HashMap<String,Client> clientmap = new HashMap<>();
+
+    public Issuer( String issuer )
+    {
+      this.issuer = issuer;
+    }
+    
+    public void putClient( Client client )
+    {
+      clientmap.put(client.clientId, client );
+    }
+    
+    public Client getClient( String client_id )
+    {
+      return clientmap.get( client_id );
+    }
+  }
+  
+  public class Client
+  {
+    boolean bdefault;
+    String clientId;
+    String authLoginUrl;
+    String authTokenUrl;
+    PublicKey publicKey;
+    String[] deploymentIds;
+    
+    public Client( String client_id )
+    {
+      this.clientId = client_id;
+    }
+
+    public boolean isDefault()
+    {
+      return bdefault;
+    }
+
+    void setDefault( boolean bdefault )
+    {
+      this.bdefault = bdefault;
+    }
+
+    public String getClientId()
+    {
+      return clientId;
+    }
+
+    void setClientId( String clientId )
+    {
+      this.clientId = clientId;
+    }
+
+    public String getAuthLoginUrl()
+    {
+      return authLoginUrl;
+    }
+
+    void setAuthLoginUrl( String authLoginUrl )
+    {
+      this.authLoginUrl = authLoginUrl;
+    }
+
+    public String getAuthTokenUrl()
+    {
+      return authTokenUrl;
+    }
+
+    void setAuthTokenUrl( String authTokenUrl )
+    {
+      this.authTokenUrl = authTokenUrl;
+    }
+
+    public PublicKey getPublicKey()
+    {
+      return publicKey;
+    }
+
+    void setPublicKey( PublicKey publicKey )
+    {
+      this.publicKey = publicKey;
+    }
+    
+    public String[] getDeploymentIds()
+    {
+      return deploymentIds;
+    }
+
+    void setDeploymentIds( String[] deploymentIds )
+    {
+      this.deploymentIds = deploymentIds;
+    }    
+    
+  }
+}

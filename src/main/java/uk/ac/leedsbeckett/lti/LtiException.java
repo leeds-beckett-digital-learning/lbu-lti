@@ -5,7 +5,8 @@
 package uk.ac.leedsbeckett.lti;
 
 /**
- *
+ * Indicates a failure in LTI processing.
+ * 
  * @author jon
  */
 public class LtiException extends Exception

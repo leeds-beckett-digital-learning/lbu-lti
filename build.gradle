@@ -1,9 +1,11 @@
 apply plugin: 'java'
 apply plugin: 'jacoco'
+apply plugin: 'maven-publish'
 
 
 description = 'LBU-LTI'
-    group = 'uk.ac.leedsbeckett'
+group = 'uk.ac.leedsbeckett'
+
 repositories {
     mavenCentral()
 }
@@ -27,4 +29,22 @@ dependencies {
     //        'io.jsonwebtoken:jjwt-jackson:0.11.2'
 
     testImplementation     'junit:junit:4.13'
+}
+
+publishing {
+  publications {
+    library(MavenPublication) {
+      from components.java
+    }
+  }
+  repositories {
+    maven {
+      name = "GitHubPackages"
+      url "https://maven.pkg.github.com/leeds-beckett-digital-learning/lbu-lti"
+      credentials {
+        username = gitHubUserName
+        password = gitHubPrivateToken
+      }
+    }
+  }
 }

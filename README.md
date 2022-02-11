@@ -1,6 +1,9 @@
-# LBU-BB-LTI-Demo
+# LBU-LTI
 
-This project will develop into a demonstration of an LTI tool for use with Blackboard Learn.
+This project is a Java library which supports the creation of LTI tools.
 
-During development phase in Netbeans remember to set the 'run' properties for the project to ensure the application
-is deployed to the right web server using the appropriate web application context URL.
+##  Status
+
+The library provides minimal functionality to support the lbu-lti-demo project. The design is subject to major changes as the author better understands LTI 1.3 and what this library needs to do to make tool creation as simple as possible.
+
+The code has not been exhaustively tested for security loopholes. Comments on security issues would be very welcome. Pull requests that address such issues would be even more welcome.

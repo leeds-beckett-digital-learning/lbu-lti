@@ -27,7 +27,7 @@ public class LtiCustomClaim extends ClaimHashMap
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/custom";
   
-  String toolType;
+  String toolName, toolType;
   
   /**
    * Construct from generic jsonwebtoken claims
@@ -37,8 +37,14 @@ public class LtiCustomClaim extends ClaimHashMap
   public LtiCustomClaim( Claims claims )
   {
     super( claims, NAME );
+    toolName = super.getAsString( "lti.jonmaber.co.uk#tool_name" );
     toolType = super.getAsString( "lti.jonmaber.co.uk#tool_type" );
   }
+  
+  public String getToolName()
+  {
+    return toolName;
+  }  
   
   public String getToolType()
   {

@@ -20,6 +20,8 @@ import uk.ac.leedsbeckett.lti.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiStateStore;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -37,6 +39,7 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  */
 public abstract class LtiLoginServlet extends HttpServlet
 {
+  static Logger logger = Logger.getLogger( LtiLoginServlet.class.getName() );
   
   /**
    * If necessary sends the user a cookie check page which will present an
@@ -96,6 +99,7 @@ public abstract class LtiLoginServlet extends HttpServlet
     String html = CookieCheckPage.getPage( builder.toString() );
     
     // Send the page.
+    logger.fine( "LtiLoginServlet.sendCookieCheckPage()");
     response.setContentType("text/html;charset=UTF-8");
     try (PrintWriter out = response.getWriter())
     {
@@ -143,10 +147,14 @@ public abstract class LtiLoginServlet extends HttpServlet
     LtiConfiguration.Client client = config.getClient( iss, client_id );
     if ( client == null )
     {
-      response.sendError( 500, "Unable to find client in configuration. " + config.getLog() );
+      logger.log( Level.SEVERE, "Unable to find client in configuration." );
+      response.sendError( 500, "Unable to find client in configuration." );
       return;
     }
-    
+    logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() iss              = {0}", iss              );
+    logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() login_hint       = {0}", login_hint       );
+    logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() client_id        = {0}", client_id        );
+    logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() lti_message_hint = {0}", lti_message_hint );
     LtiState state = statestore.createState( client );
     
     QueryBuilder qb = new QueryBuilder();

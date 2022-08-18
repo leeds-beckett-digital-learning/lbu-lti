@@ -17,6 +17,8 @@
 package uk.ac.leedsbeckett.lti.state;
 
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import uk.ac.leedsbeckett.lti.LtiConfiguration;
 
 /**
@@ -27,6 +29,8 @@ import uk.ac.leedsbeckett.lti.LtiConfiguration;
  */
 public class LtiStateStore
 {
+  static Logger logger = Logger.getLogger(LtiStateStore.class.getName());
+  
   public static final long TIMEOUTSECONDS = 60;
   
   HashMap<String,LtiState> map = new HashMap<>();
@@ -52,6 +56,7 @@ public class LtiStateStore
   public LtiState createState( LtiConfiguration.Client client )
   {
     LtiState state = newState( client );
+    logger.fine( "Creating LtiState with ID " + state.getId() );
     synchronized ( map )
     {
       map.put( state.id, state );
@@ -72,10 +77,18 @@ public class LtiStateStore
     {
       long now = System.currentTimeMillis();
       state = map.get( id );
-      if ( state != null && (now - state.timestamp) > (TIMEOUTSECONDS*1000L) )
+      if ( state == null )
+        logger.log( Level.FINE, "Did not find LtiState with ID {0}", id );
+      else
       {
-        map.remove( id );
-        state = null;
+        if ( (now - state.timestamp) > (TIMEOUTSECONDS*1000L) )
+        {
+          logger.log( Level.FINE, "Found ID {0} but it has expired.", id );
+          map.remove( id );
+          state = null;
+        }
+        else
+          logger.log( Level.FINE, "Found ID {0}.", id );
       }
     }
     return state;

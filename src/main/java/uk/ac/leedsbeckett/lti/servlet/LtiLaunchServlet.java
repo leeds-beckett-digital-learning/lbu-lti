@@ -42,6 +42,7 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  */
 public abstract class LtiLaunchServlet extends HttpServlet
 {
+  static Logger logger = Logger.getLogger( LtiLaunchServlet.class.getName() );
 
   /**
    * Performs a number of checks against the launch request including
@@ -55,7 +56,9 @@ public abstract class LtiLaunchServlet extends HttpServlet
    */
   protected void processRequest( HttpServletRequest request, HttpServletResponse response )
           throws ServletException, IOException
-  {    
+  { 
+    logger.fine( "LtiLaunchServlet.processRequest()" );
+    
     if ( !"POST".equals( request.getMethod() ) )
     {
       response.sendError( 500, "Only POST method accepted at this URL." );
@@ -90,21 +93,22 @@ public abstract class LtiLaunchServlet extends HttpServlet
       return;
     }
     
-    
+    logger.fine( "LtiLaunchServlet.processRequest() Passed basic validation of input and state." );    
     LtiMessageLaunch ml = new LtiMessageLaunch( request, state );
+    logger.fine( "LtiLaunchServlet.processRequest() Validating the LTI launch message." );
     try
     {
       ml.validate();
     }
     catch ( LtiException ex )
     {
-      Logger.getLogger(LtiLaunchServlet.class.getName() ).severe( ex.getMessage() );
-      response.sendError( 500, "Failed to validate the launch message. " + ex.getMessage() );
+      logger.log( Level.SEVERE, "Failed to validate the launch message.", ex);
+      response.sendError( 500, "Failed to validate the launch message. " );
       return;
     }
 
     Claims claims = ml.getClaims();
-    Logger.getLogger(LtiLaunchServlet.class.getName() ).log( Level.INFO, "Claims : \n" + claims.toString() );
+    logger.log(Level.FINE, "Claims : \n{0}", claims.toString() );
     
     if ( !"LtiResourceLinkRequest".equals( claims.get( "https://purl.imsglobal.org/spec/lti/claim/message_type" ) ) )
     {

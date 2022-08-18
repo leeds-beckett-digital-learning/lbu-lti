@@ -42,23 +42,12 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class LtiConfiguration
 {
+  static Logger logger = Logger.getLogger( LtiConfiguration.class.getName() );
+
   String strpathconfig;
   HashMap<String,Issuer> issuermap = new HashMap<>();
   
   String rawconfig;
-  
-  StringBuilder log = new StringBuilder();
-  
-
-  /**
-   * Returns the debugging log message.
-   * 
-   * @return A string message.
-   */
-  public String getLog()
-  {
-    return log.toString();
-  }
   
   /**
    * Find the configuration for a particular tool given the ID of the
@@ -114,7 +103,7 @@ public class LtiConfiguration
       JsonNode node = mapper.readTree(parser);
       if ( node.isObject() )
       {
-        log.append( "\nLoading base JSON object.\n" );
+        logger.fine( "LtiConfiguration loading base JSON object." );
         JsonNode issuersnode = node.get( "issuers" );
         if ( issuersnode!=null && issuersnode.isArray() )
           for ( Iterator<JsonNode> it = issuersnode.elements(); it.hasNext(); )
@@ -138,7 +127,7 @@ public class LtiConfiguration
   void loadIssuer( JsonNode issuernode )
   {
     String name = issuernode.get( "name" ).asText();
-    log.append( "Loading issuer " + name + "\n" );
+    logger.log(Level.FINE, "LtiConfiguration.loadIssuer() name = {0}", name );
     JsonNode clients = issuernode.get( "clients" );
     Issuer issuer = new Issuer( name );
     issuermap.put( name, issuer );
@@ -160,8 +149,9 @@ public class LtiConfiguration
    */
   void loadClient( Issuer issuer, JsonNode clientnode )
   {
-    log.append( "client_id = " + clientnode.get( "client_id" ).asText()  + "\n");
-    Client client = new Client( clientnode.get( "client_id" ).asText() );
+    String clientid = clientnode.get( "client_id" ).asText();
+    logger.log(Level.FINE, "LtiConfiguration.loadClient() client_id = {0}", clientid );
+    Client client = new Client( clientid );
     
     client.setDefault(        clientnode.get( "default" ).asBoolean()          );
     client.setAuthLoginUrl(   clientnode.get( "auth_login_url" ).asText()      );
@@ -173,10 +163,8 @@ public class LtiConfiguration
     }
     catch ( Exception e )
     {
-      e.printStackTrace();
       client.setPublicKey(  null );
-      log.append( "\nUnable to load public key for this client.\n" );
-      log.append( e.getMessage() );
+      logger.log( Level.SEVERE, "Unable to load public key for this client.", e );
     }
     
     JsonNode depnodea = clientnode.get( "deployment_ids" );

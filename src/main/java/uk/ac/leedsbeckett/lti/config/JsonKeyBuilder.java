@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.leedsbeckett.lti;
+package uk.ac.leedsbeckett.lti.config;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.jsonwebtoken.io.Decoders;
@@ -26,6 +26,7 @@ import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import javax.crypto.NoSuchPaddingException;
+import uk.ac.leedsbeckett.lti.LtiException;
 
 /**
  * This class takes a JSON representation of the components of an RSA public key 

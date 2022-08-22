@@ -16,7 +16,7 @@
 
 package uk.ac.leedsbeckett.lti.servlet;
 
-import uk.ac.leedsbeckett.lti.LtiMessageLaunch;
+import uk.ac.leedsbeckett.lti.messages.LtiMessageLaunch;
 import uk.ac.leedsbeckett.lti.LtiException;
 import io.jsonwebtoken.Claims;
 import uk.ac.leedsbeckett.lti.state.LtiStateStore;
@@ -25,24 +25,25 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import uk.ac.leedsbeckett.lti.claims.LtiClaims;
+import uk.ac.leedsbeckett.lti.config.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
  * An LTI tool should subclass this abstract class to implement the LTI
- * launch functionality. The implementation needs to specify how to store
+ * launch functionality.The implementation needs to specify how to store
  * state and how to forward the user to the suitable URL after the launch
  * request has been processed and validated.
  * 
  * @author jon
+ * @param <T>
  */
-public abstract class LtiLaunchServlet extends HttpServlet
+public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
 {
-  static Logger logger = Logger.getLogger( LtiLaunchServlet.class.getName() );
+  static final Logger logger = Logger.getLogger( LtiLaunchServlet.class.getName() );
 
   /**
    * Performs a number of checks against the launch request including
@@ -61,11 +62,16 @@ public abstract class LtiLaunchServlet extends HttpServlet
     
     if ( !"POST".equals( request.getMethod() ) )
     {
+      logger.severe( "Only POST method accepted at this URL." );
       response.sendError( 500, "Only POST method accepted at this URL." );
       return;
     }
 
-    LtiStateStore statestore = getLtiStateStore( request.getServletContext() );
+    LtiConfiguration config = this.getLtiConfiguration( request.getServletContext() );
+    if ( config == null )
+      throw new ServletException( "Cannot load configuration." );
+    
+    LtiStateStore<T> statestore = getLtiStateStore( request.getServletContext() );
     if ( statestore == null )
     {
       response.sendError( 500, "No state store configured." );
@@ -86,9 +92,10 @@ public abstract class LtiLaunchServlet extends HttpServlet
       return;
     }
     
-    LtiState state = statestore.getState( stateid );
+    T state = statestore.getState( stateid );
     if ( state == null )
     {
+      logger.log(Level.SEVERE, "Requested LTI 1.3 state has expired or never existed. {0}", stateid );
       response.sendError( 500, "Requested LTI 1.3 state has expired or never existed." );
       return;
     }
@@ -98,7 +105,7 @@ public abstract class LtiLaunchServlet extends HttpServlet
     logger.fine( "LtiLaunchServlet.processRequest() Validating the LTI launch message." );
     try
     {
-      ml.validate();
+      ml.validate( config );
     }
     catch ( LtiException ex )
     {
@@ -122,7 +129,13 @@ public abstract class LtiLaunchServlet extends HttpServlet
       return;      
     }
     
-    processLaunchRequest( new LtiClaims( ml.getClaims() ), ml.getState(), request, response );
+    LtiClaims lticlaims = new LtiClaims( ml.getClaims() );
+    state.setPersonName( lticlaims.get( "name" ).toString() );
+    state.setPlatformName( lticlaims.getLtiToolPlatform().getUrl() );      
+    state.setRoles( lticlaims.getLtiRoles() );
+    statestore.updateState( state );
+    
+    processLaunchRequest( lticlaims, state, request, response );
   }
   
   /**
@@ -137,7 +150,7 @@ public abstract class LtiLaunchServlet extends HttpServlet
    * @throws ServletException If a general HTTP exception occurs.
    * @throws IOException If, for example, the network connection is lost while sending data.
    */
-  protected abstract void processLaunchRequest( LtiClaims lticlaims, LtiState state, HttpServletRequest request, HttpServletResponse response )
+  protected abstract void processLaunchRequest( LtiClaims lticlaims, T state, HttpServletRequest request, HttpServletResponse response )
           throws ServletException, IOException;
   
   /**
@@ -147,7 +160,8 @@ public abstract class LtiLaunchServlet extends HttpServlet
    * @param context The servlet context.
    * @return An LtiStateStore object.
    */
-  protected abstract LtiStateStore getLtiStateStore( ServletContext context );
+  @Override
+  protected abstract LtiStateStore<T> getLtiStateStore( ServletContext context );
   
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
   /**

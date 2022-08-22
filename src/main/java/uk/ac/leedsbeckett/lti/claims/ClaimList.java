@@ -17,6 +17,7 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  *
  * @author jon
  */
-public abstract class ClaimList
+public abstract class ClaimList implements Serializable
 {
   public List list;
   

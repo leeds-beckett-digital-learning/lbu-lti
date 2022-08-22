@@ -17,13 +17,14 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 
 /**
  * Represents the LTI role claim.
  * 
  * @author jon
  */
-public class LtiRoleClaims extends ClaimList
+public class LtiRoleClaims extends ClaimList implements Serializable
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/roles";
   

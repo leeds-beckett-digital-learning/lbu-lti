@@ -16,10 +16,12 @@
 
 package uk.ac.leedsbeckett.lti.state;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.UUID;
-import uk.ac.leedsbeckett.lti.LtiConfiguration;
+import uk.ac.leedsbeckett.lti.claims.LtiRoleClaims;
+import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 
 /**
  * A state which represents a launch session with the tool. I.e. for a
@@ -31,34 +33,55 @@ import uk.ac.leedsbeckett.lti.LtiConfiguration;
  * 
  * @author jon
  */
-public class LtiState
+public class LtiState implements Serializable
 {
   static final Random random = new Random( System.currentTimeMillis() );
 
-  String id;
-  String nonce;
-  long timestamp;
-  LtiConfiguration.Client client;
-
+  final String id;
+  String nonce;  // not final
+  final long timestamp;
+  final ClientLtiConfigurationKey clientKey;  
+  
+  private String personName;
+  private String platformName;
+  private LtiRoleClaims roles;
+  
   /**
    * Construct a new state object for a given tool and prepare it for 
    * authentication.
    * 
-   * @param client The client (tool) configuration.
+   * @param clientKey
    */
-  public LtiState( LtiConfiguration.Client client )
+  public LtiState( ClientLtiConfigurationKey clientKey )
   {
+    this.clientKey = clientKey;
     id = UUID.randomUUID().toString();
     byte[] noncebytes = new byte[32];
     random.nextBytes( noncebytes );
     BigInteger bignonce = new BigInteger( 1, noncebytes );
-    nonce = bignonce.toString( 16 );
-    while ( nonce.length() < 64 )
-      nonce = "0" + nonce;
+    StringBuilder sb = new StringBuilder();
+    sb.append( bignonce.toString( 16 ) );
+    while ( sb.length() < 64 )
+      sb.append( "0" );
+    nonce = sb.toString();
     timestamp = System.currentTimeMillis();
-    this.client = client;
+  }
+  
+  public String getIssuer()
+  {
+    return clientKey.getIssuerName();
   }
 
+  public String getClientId()
+  {
+    return clientKey.getClientId();
+  }
+
+  public ClientLtiConfigurationKey getClientKey()
+  {
+    return clientKey;
+  }
+  
   /**
    * Get the unique ID of this state object.
    * 
@@ -99,15 +122,29 @@ public class LtiState
     return timestamp;
   }
 
-  /**
-   * Get a reference to the configuration that was used to create this.
-   * 
-   * @return Client configuration.
-   */
-  public LtiConfiguration.Client getClient()
-  {
-    return client;
+  public String getPersonName() {
+    return personName;
   }
 
+  public void setPersonName(String personName) {
+    this.personName = personName;
+  }
 
+  public String getPlatformName() {
+    return platformName;
+  }
+
+  public void setPlatformName(String platformName) {
+    this.platformName = platformName;
+  }
+
+  public LtiRoleClaims getRoles() {
+    return roles;
+  }
+
+  public void setRoles(LtiRoleClaims roles) {
+    this.roles = roles;
+  }
+  
+  
 }

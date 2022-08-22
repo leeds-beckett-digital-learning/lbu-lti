@@ -17,6 +17,7 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
@@ -28,9 +29,9 @@ import java.util.Set;
  * 
  * @author jon
  */
-public class LtiClaims implements Claims
+public class LtiClaims implements Claims, Serializable
 {
-  Claims               wrapped;
+  Claims               wrapped;  // Is the implementation of this serializable?
   
   LtiContextClaim      lticontext      = null;
   LtiCustomClaim       lticustom       = null;

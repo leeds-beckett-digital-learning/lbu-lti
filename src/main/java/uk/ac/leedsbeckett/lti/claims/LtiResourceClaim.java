@@ -17,13 +17,14 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 
 /**
  * Represents the LTI resource claim.
  * 
  * @author jon
  */
-public class LtiResourceClaim extends ClaimHashMap
+public class LtiResourceClaim extends ClaimHashMap implements Serializable
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/resource_link";
 

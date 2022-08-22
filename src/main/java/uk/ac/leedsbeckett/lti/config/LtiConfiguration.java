@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.ac.leedsbeckett.lti;
+package uk.ac.leedsbeckett.lti.config;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -24,7 +24,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,12 +41,17 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class LtiConfiguration
 {
-  static Logger logger = Logger.getLogger( LtiConfiguration.class.getName() );
+  static final Logger logger = Logger.getLogger( LtiConfiguration.class.getName() );
 
   String strpathconfig;
-  HashMap<String,Issuer> issuermap = new HashMap<>();
+  HashMap<String,IssuerLtiConfiguration> issuermap = new HashMap<>();
   
   String rawconfig;
+  
+  public ClientLtiConfiguration getClientLtiConfiguration( ClientLtiConfigurationKey clientkey )
+  {
+    return getClientLtiConfiguration( clientkey.getIssuerName(), clientkey.getClientId() );
+  }  
   
   /**
    * Find the configuration for a particular tool given the ID of the
@@ -57,11 +61,11 @@ public class LtiConfiguration
    * @param client_id The ID of a client of the issuer.
    * @return A client configuration object.
    */
-  public Client getClient( String issuername, String client_id )
+  public ClientLtiConfiguration getClientLtiConfiguration( String issuername, String client_id )
   {
-    Issuer issuer = issuermap.get( issuername );
+    IssuerLtiConfiguration issuer = issuermap.get( issuername );
     if ( issuer == null ) return null;
-    return issuer.getClient( client_id );
+    return issuer.getClientLtiConfiguration( client_id );
   }
 
   /**
@@ -129,7 +133,7 @@ public class LtiConfiguration
     String name = issuernode.get( "name" ).asText();
     logger.log(Level.FINE, "LtiConfiguration.loadIssuer() name = {0}", name );
     JsonNode clients = issuernode.get( "clients" );
-    Issuer issuer = new Issuer( name );
+    IssuerLtiConfiguration issuer = new IssuerLtiConfiguration( name );
     issuermap.put( name, issuer );
     if ( !clients.isArray() )
       return;
@@ -147,11 +151,11 @@ public class LtiConfiguration
    * @param issuer The issuer to load into.
    * @param clientnode The JSON node containing the config.
    */
-  void loadClient( Issuer issuer, JsonNode clientnode )
+  void loadClient( IssuerLtiConfiguration issuer, JsonNode clientnode )
   {
     String clientid = clientnode.get( "client_id" ).asText();
     logger.log(Level.FINE, "LtiConfiguration.loadClient() client_id = {0}", clientid );
-    Client client = new Client( clientid );
+    ClientLtiConfiguration client = new ClientLtiConfiguration( clientid );
     
     client.setDefault(        clientnode.get( "default" ).asBoolean()          );
     client.setAuthLoginUrl(   clientnode.get( "auth_login_url" ).asText()      );
@@ -179,113 +183,6 @@ public class LtiConfiguration
       }
     }
     client.setDeploymentIds( list.toArray( new String[list.size()] ) );
-    issuer.putClient( client );
-  } 
-  
-  
-  /**
-   * Class represents the configuration related to a particular issuer, 
-   * e.g. from blackboard.com. 
-   */
-  public class Issuer
-  {
-    String issuer;
-    HashMap<String,Client> clientmap = new HashMap<>();
-
-    public Issuer( String issuer )
-    {
-      this.issuer = issuer;
-    }
-    
-    public void putClient( Client client )
-    {
-      clientmap.put(client.clientId, client );
-    }
-    
-    public Client getClient( String client_id )
-    {
-      return clientmap.get( client_id );
-    }
-  }
-  
-  /**
-   * Represents the configuration of a specific client of an issuer. For
-   * example, this tool as defined by an application entry on 
-   * developer.blackboard.com
-   */
-  public class Client
-  {
-    boolean bdefault;
-    String clientId;
-    String authLoginUrl;
-    String authTokenUrl;
-    PublicKey publicKey;
-    String[] deploymentIds;
-    
-    public Client( String client_id )
-    {
-      this.clientId = client_id;
-    }
-
-    public boolean isDefault()
-    {
-      return bdefault;
-    }
-
-    void setDefault( boolean bdefault )
-    {
-      this.bdefault = bdefault;
-    }
-
-    public String getClientId()
-    {
-      return clientId;
-    }
-
-    void setClientId( String clientId )
-    {
-      this.clientId = clientId;
-    }
-
-    public String getAuthLoginUrl()
-    {
-      return authLoginUrl;
-    }
-
-    void setAuthLoginUrl( String authLoginUrl )
-    {
-      this.authLoginUrl = authLoginUrl;
-    }
-
-    public String getAuthTokenUrl()
-    {
-      return authTokenUrl;
-    }
-
-    void setAuthTokenUrl( String authTokenUrl )
-    {
-      this.authTokenUrl = authTokenUrl;
-    }
-
-    public PublicKey getPublicKey()
-    {
-      return publicKey;
-    }
-
-    void setPublicKey( PublicKey publicKey )
-    {
-      this.publicKey = publicKey;
-    }
-    
-    public String[] getDeploymentIds()
-    {
-      return deploymentIds;
-    }
-
-    void setDeploymentIds( String[] deploymentIds )
-    {
-      this.deploymentIds = deploymentIds;
-    }    
-    
-  }
+    issuer.putClientLtiConfiguration( client );
+  }   
 }

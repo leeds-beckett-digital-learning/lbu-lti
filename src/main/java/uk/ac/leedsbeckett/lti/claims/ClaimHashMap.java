@@ -17,6 +17,7 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
@@ -25,7 +26,7 @@ import java.util.List;
  * 
  * @author jon
  */
-public abstract class ClaimHashMap
+public abstract class ClaimHashMap implements Serializable
 {
   public HashMap map;
   

@@ -16,30 +16,31 @@
 
 package uk.ac.leedsbeckett.lti.servlet;
 
-import uk.ac.leedsbeckett.lti.LtiConfiguration;
+import uk.ac.leedsbeckett.lti.config.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiStateStore;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import uk.ac.leedsbeckett.lti.config.ClientLtiConfiguration;
+import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
  * An LTI tool should subclass this abstract class to implement the LTI
- * login functionality. The implementation needs to specify how to store
- * state.
+ * login functionality.The implementation needs to specify how to store
+ state.
  *
  * @author jon
+ * @param <T>
  */
-public abstract class LtiLoginServlet extends HttpServlet
+public abstract class LtiLoginServlet<T extends LtiState> extends LtiServlet<T>
 {
-  static Logger logger = Logger.getLogger( LtiLoginServlet.class.getName() );
+  static final Logger logger = Logger.getLogger( LtiLoginServlet.class.getName() );
   
   /**
    * If necessary sends the user a cookie check page which will present an
@@ -125,7 +126,7 @@ public abstract class LtiLoginServlet extends HttpServlet
     if ( config == null )
       throw new ServletException( "Cannot load configuration." );
 
-    LtiStateStore statestore = getLtiStateStore( request.getServletContext() );
+    LtiStateStore<T> statestore = getLtiStateStore( request.getServletContext() );
     if ( statestore == null )
     {
       response.sendError( 500, "No state store configured." );
@@ -144,7 +145,7 @@ public abstract class LtiLoginServlet extends HttpServlet
     String client_id        = request.getParameter( "client_id" );
     String lti_message_hint = request.getParameter( "lti_message_hint" );
     
-    LtiConfiguration.Client client = config.getClient( iss, client_id );
+    ClientLtiConfiguration client = config.getClientLtiConfiguration( iss, client_id );
     if ( client == null )
     {
       logger.log( Level.SEVERE, "Unable to find client in configuration." );
@@ -155,7 +156,7 @@ public abstract class LtiLoginServlet extends HttpServlet
     logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() login_hint       = {0}", login_hint       );
     logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() client_id        = {0}", client_id        );
     logger.log(Level.FINE, "LtiLoginServlet.forwardToVerification() lti_message_hint = {0}", lti_message_hint );
-    LtiState state = statestore.createState( client );
+    T state = statestore.createState(new ClientLtiConfigurationKey( iss, client_id ) );
     
     QueryBuilder qb = new QueryBuilder();
     qb.add( "scope", "openid" );  // OIDC Scope
@@ -173,21 +174,6 @@ public abstract class LtiLoginServlet extends HttpServlet
     response.setStatus( 302 );
     response.setHeader( "Location", client.getAuthLoginUrl() + qb.get() );
   }
-  
-  /**
-   * Implementations use this method to tell this object how to get the configuration.
-   * 
-   * @param context The servlet context.
-   * @return An LtiConfiguration object.
-   */
-  protected abstract LtiConfiguration getLtiConfiguration( ServletContext context );
-  
-  /**
-   * Implementations use this method to tell this object how to store state.
-   * @param context The servlet context.
-   * @return An LtiStateStore object.
-   */
-  protected abstract LtiStateStore getLtiStateStore( ServletContext context );
   
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
   /**

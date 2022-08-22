@@ -16,52 +16,65 @@
 
 package uk.ac.leedsbeckett.lti.state;
 
-import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import uk.ac.leedsbeckett.lti.LtiConfiguration;
+import javax.cache.Cache;
+import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 
 /**
- * A utility class that stores LTI state. This will probably be subclassed
- * by a tool implementation.
+ * A utility class that stores LTI state.This will probably be subclassed
+ by a tool implementation.
  * 
  * @author jon
+ * @param <T>
  */
-public class LtiStateStore
+public class LtiStateStore<T extends LtiState>
 {
-  static Logger logger = Logger.getLogger(LtiStateStore.class.getName());
+  static final Logger logger = Logger.getLogger(LtiStateStore.class.getName());
   
   public static final long TIMEOUTSECONDS = 60;
-  
-  HashMap<String,LtiState> map = new HashMap<>();
+
+  private final LtiStateSupplier<T> supplier;
+  private final Cache<String,T> cache;
   
   /**
-   * Subclasses will override this method if they want to use a state class
-   * which is a subclass of LtiState.
+   * To construct this class application code needs to supply a cache and
+   * an object that can instantiate cache entries of the correct type.
    * 
-   * @param client The client configuration.
-   * @return An object of type LtiState or subclass thereof.
+   * @param cache
+   * @param supplier 
    */
-  protected LtiState newState( LtiConfiguration.Client client )
+  public LtiStateStore( Cache<String,T> cache, LtiStateSupplier<T> supplier )
   {
-    return new LtiState( client );    
+    this.cache  = cache;
+    this.supplier = supplier;
   }
   
   /**
    * Instantiate and store a new state object.
    * 
-   * @param client The client configuration.
+   * @param clientKey Identifies client LTI configuration for the tool in question.
    * @return An object of type LtiState or subclass thereof.
    */
-  public LtiState createState( LtiConfiguration.Client client )
+  public T createState( ClientLtiConfigurationKey clientKey )
   {
-    LtiState state = newState( client );
-    logger.fine( "Creating LtiState with ID " + state.getId() );
-    synchronized ( map )
-    {
-      map.put( state.id, state );
-    }
+    T state = supplier.get( clientKey );
+    assert( state != null );
+    logger.log(Level.FINE, "Creating LtiState with ID {0}", state.getId());
+    cache.put( state.getId(), state );
+    if ( !cache.containsKey( state.getId() ) )
+      logger.log( Level.SEVERE, "LtiState was not successfully stored in the cache." );
     return state;
+  }
+
+  /**
+   * Replace the version in the cache.
+   * 
+   * @param state 
+   */
+  public void updateState( T state )
+  {
+    cache.put( state.getId(), state );
   }
   
   /**
@@ -70,27 +83,24 @@ public class LtiStateStore
    * @param id The unique ID of the required state object.
    * @return The state object or null if not found or timed out.
    */
-  public LtiState getState( String id )
+  public T getState( String id )
   {
-    LtiState state = null;
-    synchronized ( map )
+    long now = System.currentTimeMillis();
+    T state = cache.get( id );
+    if ( state == null )
+      logger.log( Level.FINE, "Did not find LtiState with ID {0}", id );
+    else
     {
-      long now = System.currentTimeMillis();
-      state = map.get( id );
-      if ( state == null )
-        logger.log( Level.FINE, "Did not find LtiState with ID {0}", id );
-      else
+      if ( (now - state.timestamp) > (TIMEOUTSECONDS*1000L) )
       {
-        if ( (now - state.timestamp) > (TIMEOUTSECONDS*1000L) )
-        {
-          logger.log( Level.FINE, "Found ID {0} but it has expired.", id );
-          map.remove( id );
-          state = null;
-        }
-        else
-          logger.log( Level.FINE, "Found ID {0}.", id );
+        logger.log( Level.FINE, "Found ID {0} but it has expired.", id );
+        cache.remove( id );
+        state = null;
       }
+      else
+        logger.log( Level.FINE, "Found ID {0}.", id );
     }
+    
     return state;
   }
 }

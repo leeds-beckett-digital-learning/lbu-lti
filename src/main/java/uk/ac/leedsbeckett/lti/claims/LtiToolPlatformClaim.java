@@ -17,13 +17,14 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 
 /**
  * Represents the LTI tool platform claim.
  * 
  * @author jon
  */
-public class LtiToolPlatformClaim extends ClaimHashMap
+public class LtiToolPlatformClaim extends ClaimHashMap implements Serializable
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/tool_platform";
 

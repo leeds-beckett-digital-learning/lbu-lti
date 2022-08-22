@@ -17,6 +17,7 @@
 package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  * 
  * @author jon
  */
-public class LtiContextClaim extends ClaimHashMap
+public class LtiContextClaim extends ClaimHashMap implements Serializable
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/context";
   

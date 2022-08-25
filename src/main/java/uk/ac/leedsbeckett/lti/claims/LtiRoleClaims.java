@@ -30,6 +30,7 @@ public class LtiRoleClaims extends ClaimList implements Serializable
   
   Object o;
   boolean standardinstructor=false;
+  boolean standardlearner=false;
   
   /**
    * Construct from generic jsonwebtoken claims
@@ -40,12 +41,21 @@ public class LtiRoleClaims extends ClaimList implements Serializable
   {
     super( claims, NAME );
     for ( Object item : list )
+    {
       if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor".equals( item.toString() ) )
         standardinstructor=true;
+      if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner".equals( item.toString() ) )
+        standardlearner=true;
+    }
   }
 
   public boolean isInStandardInstructorRole()
   {
     return standardinstructor;
+  }
+
+  public boolean isInStandardLearnerRole()
+  {
+    return standardlearner;
   }
 }

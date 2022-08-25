@@ -18,6 +18,7 @@ package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
+import java.util.logging.Logger;
 
 /**
  * Represents the LTI role claim.
@@ -26,6 +27,8 @@ import java.io.Serializable;
  */
 public class LtiRoleClaims extends ClaimList implements Serializable
 {
+  static final Logger logger = Logger.getLogger( LtiRoleClaims.class.getName() );
+  
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/roles";
   
   Object o;
@@ -42,6 +45,7 @@ public class LtiRoleClaims extends ClaimList implements Serializable
     super( claims, NAME );
     for ( Object item : list )
     {
+      logger.fine( item.toString() );
       if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor".equals( item.toString() ) )
         standardinstructor=true;
       if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner".equals( item.toString() ) )

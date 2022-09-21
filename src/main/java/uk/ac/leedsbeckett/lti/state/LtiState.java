@@ -42,6 +42,7 @@ public class LtiState implements Serializable
   final long timestamp;
   final ClientLtiConfigurationKey clientKey;  
   
+  private String personId;
   private String personName;
   private String platformName;
   private LtiRoleClaims roles;
@@ -122,6 +123,16 @@ public class LtiState implements Serializable
     return timestamp;
   }
 
+  public String getPersonId()
+  {
+    return personId;
+  }
+
+  public void setPersonId( String personId )
+  {
+    this.personId = personId;
+  }
+  
   public String getPersonName() {
     return personName;
   }

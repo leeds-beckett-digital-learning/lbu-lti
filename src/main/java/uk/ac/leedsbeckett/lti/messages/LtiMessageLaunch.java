@@ -102,7 +102,5 @@ public class LtiMessageLaunch
   public LtiState getState()
   {
     return state;
-  }
-  
-  
+  }  
 }

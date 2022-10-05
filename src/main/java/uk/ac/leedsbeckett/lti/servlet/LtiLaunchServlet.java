@@ -33,8 +33,8 @@ import uk.ac.leedsbeckett.lti.config.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
- * An LTI tool should subclass this abstract class to implement the LTI
- * launch functionality.The implementation needs to specify how to store
+ * An LTI application or framework should subclass this abstract class to implement the LTI
+ * launch functionality. The implementation needs to specify how to store
  * state and how to forward the user to the suitable URL after the launch
  * request has been processed and validated.
  * 

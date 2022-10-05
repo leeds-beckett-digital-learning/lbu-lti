@@ -22,8 +22,9 @@ import javax.cache.Cache;
 import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 
 /**
- * A utility class that stores LTI state.This will probably be subclassed
- by a tool implementation.
+ * A utility class that stores LTI state. This will be subclassed
+ * by a tool or framework implementation that will declare the actual
+ * type of the LtiState that will be used.
  * 
  * @author jon
  * @param <T>

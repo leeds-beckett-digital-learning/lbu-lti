@@ -31,9 +31,8 @@ import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
- * An LTI tool should subclass this abstract class to implement the LTI
- * login functionality.The implementation needs to specify how to store
- state.
+ * An LTI tool or framework should subclass this abstract class to implement the LTI
+ * login functionality. The implementation needs to specify how to store state.
  *
  * @author jon
  * @param <T>

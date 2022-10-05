@@ -35,7 +35,8 @@ import org.apache.commons.lang3.StringUtils;
 
 /**
  * Represents the configuration of an LTI tool. Loads from a JSON file.
- * Likely to be much changed in the future.
+ * Likely to be much changed in the future. Currently contains a number of
+ * issuer configs which each contain a number of client configs.
  * 
  * @author jon
  */
@@ -48,6 +49,13 @@ public class LtiConfiguration
   
   String rawconfig;
   
+  /**
+   * Fetch a client config based on a key that identifies both the issuer
+   * and the client.
+   * 
+   * @param clientkey A key with the IDs in.
+   * @return The requested config or null if not found.
+   */
   public ClientLtiConfiguration getClientLtiConfiguration( ClientLtiConfigurationKey clientkey )
   {
     return getClientLtiConfiguration( clientkey.getIssuerName(), clientkey.getClientId() );
@@ -59,7 +67,7 @@ public class LtiConfiguration
    * 
    * @param issuername The ID of the issuer.
    * @param client_id The ID of a client of the issuer.
-   * @return A client configuration object.
+   * @return A client configuration object or null if not found.
    */
   public ClientLtiConfiguration getClientLtiConfiguration( String issuername, String client_id )
   {

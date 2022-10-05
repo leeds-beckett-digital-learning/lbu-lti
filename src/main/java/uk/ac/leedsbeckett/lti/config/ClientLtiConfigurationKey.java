@@ -31,8 +31,8 @@ public class ClientLtiConfigurationKey implements Serializable
   /**
    * Construct using values for the two final fields.
    * 
-   * @param issuerName
-   * @param clientId 
+   * @param issuerName Name of the issuer of the credentials.
+   * @param clientId ID of the client that the issuer provides credentials for.
    */
   public ClientLtiConfigurationKey(String issuerName, String clientId)
   {
@@ -43,7 +43,7 @@ public class ClientLtiConfigurationKey implements Serializable
   /**
    * Get the issuer name from this key.
    * 
-   * @return 
+   * @return Value of the issuer name.
    */
   public String getIssuerName()
   {
@@ -53,7 +53,7 @@ public class ClientLtiConfigurationKey implements Serializable
   /**
    * Get the client ID from this key.
    * 
-   * @return 
+   * @return Value of the client ID.
    */
   public String getClientId()
   {

@@ -39,7 +39,7 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  * request has been processed and validated.
  * 
  * @author jon
- * @param <T>
+ * @param <T> The subtype of the LtiState that will be used by implementations of this servlet.
  */
 public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
 {

@@ -31,7 +31,7 @@ public class IssuerLtiConfiguration
   /**
    * Construct an 'empty' issuer using an issuer name.
    * 
-   * @param issuer 
+   * @param issuer Value of the issuer this config represents.
    */
   public IssuerLtiConfiguration( String issuer )
   {

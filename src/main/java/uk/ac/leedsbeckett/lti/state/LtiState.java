@@ -51,7 +51,7 @@ public class LtiState implements Serializable
    * Construct a new state object for a given tool and prepare it for 
    * authentication.
    * 
-   * @param clientKey
+   * @param clientKey A key that identifies the LTI client and its security provider.
    */
   public LtiState( ClientLtiConfigurationKey clientKey )
   {

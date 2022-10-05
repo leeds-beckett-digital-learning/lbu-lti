@@ -54,7 +54,7 @@ public class LtiMessageLaunch
   /**
    * Validates the claims carried by this message.
    * 
-   * @param config
+   * @param config The configuration to use for validation.
    * @throws LtiException Thrown if information is missing but mainly if the digital signature is invalid.
    */
   public void validate( LtiConfiguration config ) throws LtiException

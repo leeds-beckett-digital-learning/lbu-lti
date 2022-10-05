@@ -27,7 +27,7 @@ import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
  * type of the LtiState that will be used.
  * 
  * @author jon
- * @param <T>
+ * @param <T> The subtype of the LtiState that will be stored by implementations of store.
  */
 public class LtiStateStore<T extends LtiState>
 {
@@ -42,8 +42,8 @@ public class LtiStateStore<T extends LtiState>
    * To construct this class application code needs to supply a cache and
    * an object that can instantiate cache entries of the correct type.
    * 
-   * @param cache
-   * @param supplier 
+   * @param cache A cache implementation to use in this store.
+   * @param supplier An object that can instantiate new state objects.
    */
   public LtiStateStore( Cache<String,T> cache, LtiStateSupplier<T> supplier )
   {
@@ -71,7 +71,7 @@ public class LtiStateStore<T extends LtiState>
   /**
    * Replace the version in the cache.
    * 
-   * @param state 
+   * @param state A state object to put in the cache.
    */
   public void updateState( T state )
   {

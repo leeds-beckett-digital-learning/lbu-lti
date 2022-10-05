@@ -5,6 +5,12 @@ apply plugin: 'maven-publish'
 description = 'LBU-LTI'
 group = 'uk.ac.leedsbeckett'
 
+// Publish javadoc and source packages along with built library
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     mavenCentral()
 }

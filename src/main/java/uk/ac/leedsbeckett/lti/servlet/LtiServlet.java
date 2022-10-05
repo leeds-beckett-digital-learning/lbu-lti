@@ -26,7 +26,7 @@ import uk.ac.leedsbeckett.lti.state.LtiStateStore;
  * clearly declare the type of state class they use.
  * 
  * @author jon
- * @param <T>
+ * @param <T> The subtype of the LtiState that will be used by implementations of this servlet.
  */
 public abstract class LtiServlet<T extends LtiState> extends HttpServlet
 {  

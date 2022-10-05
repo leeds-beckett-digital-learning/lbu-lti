@@ -35,7 +35,7 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  * login functionality. The implementation needs to specify how to store state.
  *
  * @author jon
- * @param <T>
+ * @param <T> The subtype of the LtiState that will be used by implementations of this servlet.
  */
 public abstract class LtiLoginServlet<T extends LtiState> extends LtiServlet<T>
 {

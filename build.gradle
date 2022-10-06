@@ -9,6 +9,9 @@ group = 'uk.ac.leedsbeckett'
 java {
     withSourcesJar()
     withJavadocJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(11))
+    }
 }
 
 repositories {

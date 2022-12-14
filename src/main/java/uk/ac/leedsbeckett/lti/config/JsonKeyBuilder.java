@@ -48,8 +48,12 @@ public class JsonKeyBuilder
    * @throws InvalidKeySpecException Only thrown if the key is dodgy.
    * @throws InvalidKeyException Only thrown if the key is dodgy.
    */
-  public static PublicKey build( JsonNode node ) throws LtiException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException
+  public static KeyConfiguration build( JsonNode node ) throws LtiException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException
   {
+    boolean enabled = true;
+    if ( node.has( "enabled" ) )
+      enabled = node.get( "enabled" ).asBoolean();
+    String kid = node.get( "kid" ).asText();
     String keyType = node.get( "kty" ).asText();
     if ( !"RSA".equals( keyType ) )
       throw new LtiException( "Only RSA public keys are supported in the config.json file." );
@@ -66,6 +70,6 @@ public class JsonKeyBuilder
     KeyFactory factory = KeyFactory.getInstance("RSA");
 
     RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(modulo, exponent);
-    return factory.generatePublic(pubSpec);
+    return new KeyConfiguration( kid, factory.generatePublic(pubSpec), enabled );
   }
 }

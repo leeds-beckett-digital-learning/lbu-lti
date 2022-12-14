@@ -15,7 +15,13 @@
  */
 package uk.ac.leedsbeckett.lti.config;
 
-import java.security.PublicKey;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.SigningKeyResolver;
+import java.security.Key;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Represents the configuration of an LTI 1.3 client. I.e. information about
@@ -23,13 +29,15 @@ import java.security.PublicKey;
  * 
  * @author jon
  */
-public class ClientLtiConfiguration
+public class ClientLtiConfiguration implements SigningKeyResolver
 {
+  static final Logger logger = Logger.getLogger( ClientLtiConfiguration.class.getName() );
+
   boolean bdefault;
   String clientId;
   String authLoginUrl;
   String authTokenUrl;
-  PublicKey publicKey;
+  final HashMap<String,KeyConfiguration> keyConfigurationMap = new HashMap<>();
   String[] deploymentIds;
 
   public ClientLtiConfiguration( String client_id )
@@ -77,14 +85,14 @@ public class ClientLtiConfiguration
     this.authTokenUrl = authTokenUrl;
   }
 
-  public PublicKey getPublicKey()
+  public KeyConfiguration getKeyConfiguration( String kid )
   {
-    return publicKey;
+    return keyConfigurationMap.get( kid );
   }
 
-  void setPublicKey( PublicKey publicKey )
+  void putKeyConfiguration( KeyConfiguration kc )
   {
-    this.publicKey = publicKey;
+    keyConfigurationMap.put( kc.getKid(), kc );
   }
 
   public String[] getDeploymentIds()
@@ -97,5 +105,33 @@ public class ClientLtiConfiguration
     this.deploymentIds = deploymentIds;
   }    
 
-  
+  @Override
+  public Key resolveSigningKey( JwsHeader jh, Claims claims )
+  {
+    return resolveSigningKey( jh );
+  }
+
+  @Override
+  public Key resolveSigningKey( JwsHeader jh, String string )
+  {
+    return resolveSigningKey( jh );
+  }
+
+  private Key resolveSigningKey( JwsHeader jh )
+  {
+    logger.log(Level.FINE, "Looking for key with ID {0}", jh.getKeyId());
+    KeyConfiguration kc = this.getKeyConfiguration( jh.getKeyId() );
+    
+    if ( kc == null )
+    {
+      logger.log( Level.SEVERE, "Key not found in client LTI configuration." );
+      return null;
+    }
+    
+    if ( kc.isEnabled() )
+      return kc.getKey();
+    
+    logger.log( Level.INFO, "LTI signing key found but is not enabled in configuration." );
+    return null;
+  }  
 }

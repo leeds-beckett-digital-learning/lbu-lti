@@ -19,7 +19,7 @@ package uk.ac.leedsbeckett.lti.messages;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
-import java.security.PublicKey;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import uk.ac.leedsbeckett.lti.LtiException;
@@ -34,6 +34,8 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  */
 public class LtiMessageLaunch
 {
+  static final Logger logger = Logger.getLogger( LtiMessageLaunch.class.getName() );
+
   HttpServletRequest request;
   LtiState state;
   Claims claims;
@@ -64,14 +66,12 @@ public class LtiMessageLaunch
     ClientLtiConfiguration clientconfig = config.getClientLtiConfiguration( state.getClientKey() );
     if ( clientconfig == null )
       throw new LtiException( "No client" );
-    PublicKey pk = clientconfig.getPublicKey();
-    if ( pk == null )
-      throw new LtiException( "No client public key" );
     String id_token = request.getParameter( "id_token" );
     if ( StringUtils.isEmpty( id_token ) )
       throw new LtiException( "No id_token" );
-    
-    Jws<Claims> jws = Jwts.parserBuilder().setSigningKey( pk ).build().parseClaimsJws( id_token );
+
+    logger.info( "Parsing id_token." );
+    Jws<Claims> jws = Jwts.parserBuilder().setSigningKeyResolver( clientconfig ).build().parseClaimsJws( id_token );
     
     String nonce = state.getNonce();
     if ( nonce == null )

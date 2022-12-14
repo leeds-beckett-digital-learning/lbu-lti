@@ -168,17 +168,28 @@ public class LtiConfiguration
     client.setDefault(        clientnode.get( "default" ).asBoolean()          );
     client.setAuthLoginUrl(   clientnode.get( "auth_login_url" ).asText()      );
     client.setAuthTokenUrl(   clientnode.get( "auth_token_url" ).asText()      );
-    
-    try
+
+    if ( clientnode.has( "keys" ) )
     {
-      client.setPublicKey( JsonKeyBuilder.build( clientnode.get( "public_key" ) ) );
+      JsonNode keysnode = clientnode.get( "keys" );
+      if ( keysnode.isArray() )
+      {
+        for ( Iterator<JsonNode> it = keysnode.elements(); it.hasNext(); )
+        {
+          JsonNode knode = it.next();
+          if ( !knode.isObject() )
+            continue;
+          try
+          {
+            client.putKeyConfiguration( JsonKeyBuilder.build( knode ) );
+          }
+          catch ( Exception e )
+          {
+            logger.log( Level.SEVERE, "Unable to load public key for this client.", e );
+          }
+        }
+      }
     }
-    catch ( Exception e )
-    {
-      client.setPublicKey(  null );
-      logger.log( Level.SEVERE, "Unable to load public key for this client.", e );
-    }
-    
     JsonNode depnodea = clientnode.get( "deployment_ids" );
     ArrayList<String> list = new ArrayList<>();
     if ( depnodea.isArray() )

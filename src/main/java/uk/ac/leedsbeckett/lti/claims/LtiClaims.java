@@ -39,6 +39,8 @@ public class LtiClaims implements Claims, Serializable
   LtiRoleClaims        ltiroles        = null;
   LtiToolPlatformClaim ltitoolplatform = null;
 
+  LtiNamesRoleServiceClaim ltinamesroleservice = null;
+  
   /**
    * Constructs an object by wrapping a given claims object.
    * 
@@ -58,6 +60,8 @@ public class LtiClaims implements Claims, Serializable
       ltiroles = new LtiRoleClaims( wrapped );
     if ( wrapped.containsKey( LtiToolPlatformClaim.NAME ) )
       ltitoolplatform = new LtiToolPlatformClaim( wrapped );
+    if ( wrapped.containsKey( LtiNamesRoleServiceClaim.NAME ) )
+      ltinamesroleservice = new LtiNamesRoleServiceClaim( wrapped );
   }
 
   /**
@@ -108,6 +112,11 @@ public class LtiClaims implements Claims, Serializable
   public LtiToolPlatformClaim getLtiToolPlatform()
   {
     return ltitoolplatform;
+  }
+
+  public LtiNamesRoleServiceClaim getLtiNamesRoleService()
+  {
+    return ltinamesroleservice;
   }
 
 

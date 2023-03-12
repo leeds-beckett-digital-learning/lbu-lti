@@ -19,6 +19,7 @@ package uk.ac.leedsbeckett.lti.claims;
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
 import java.util.List;
+import uk.ac.leedsbeckett.lti.services.LtiServiceScope;
 
 /**
  * Represents the LTI custom claim.
@@ -27,15 +28,19 @@ import java.util.List;
  */
 public class LtiNamesRoleServiceClaim extends ClaimHashMap implements Serializable
 {
-  public static final String NAME = "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice";
+  public static final String NAME                = "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice";
+  public static final LtiServiceScope SCOPE = 
+          new LtiServiceScope( "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly" );
   
   String contextMembershipsUrl;
-  List<String> scope;
   List<String> serviceVersions;
   
   
   /**
    * Construct from generic jsonwebtoken claims
+   * 
+   * https://www.imsglobal.org/spec/lti-nrps/v2p0#lti-1-3-integration
+   * Section 3.6.1.1
    * 
    * @param claims The jsonwebtoken claims object.
    */
@@ -43,18 +48,12 @@ public class LtiNamesRoleServiceClaim extends ClaimHashMap implements Serializab
   {
     super( claims, NAME );
     contextMembershipsUrl = super.getAsString( "context_memberships_url" );
-    scope = super.getAsList( "scope" );
     serviceVersions = super.getAsList( "service_versions" );
   }
 
   public String getContextMembershipsUrl()
   {
     return contextMembershipsUrl;
-  }
-
-  public List<String> getScope()
-  {
-    return scope;
   }
 
   public List<String> getServiceVersions()

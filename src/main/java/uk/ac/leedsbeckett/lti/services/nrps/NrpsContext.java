@@ -15,7 +15,8 @@
  */
 package uk.ac.leedsbeckett.lti.services.nrps;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,22 +24,25 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-public class NrpsContext
+public class NrpsContext implements Serializable
 {
   static final Logger logger = Logger.getLogger( NrpsContext.class.getName() );
 
+  private final String id;
+  private final String label;
+  private final String title;
 
-  boolean valid=false;
-  
-  String id;
-  String label;
-  String title;
-
-  public boolean isValid()
+  public NrpsContext( 
+          @JsonProperty("id")    String id, 
+          @JsonProperty("label") String label, 
+          @JsonProperty("title") String title )
   {
-    return valid;
+    this.id = id;
+    this.label = label;
+    this.title = title;
   }
 
+  
   public String getId()
   {
     return id;
@@ -54,26 +58,6 @@ public class NrpsContext
     return title;
   }
  
-  public void load( JsonNode node )
-  {
-    if ( 
-         !node.has( "id" ) || 
-         !node.get( "id" ).isTextual() || 
-         !node.has( "label" ) || 
-         !node.get( "label" ).isTextual() || 
-         !node.has( "title" ) ||
-         !node.get( "title" ).isTextual()
-       )
-    {
-      logger.warning( "Invalid fields." );
-      return;
-    }
-    id    = node.get( "id" ).textValue();
-    label = node.get( "label" ).textValue();
-    title = node.get( "title" ).textValue();
-    valid = true;
-  }
-
   public void dumpToLog()
   {
     logger.log( Level.INFO, id );

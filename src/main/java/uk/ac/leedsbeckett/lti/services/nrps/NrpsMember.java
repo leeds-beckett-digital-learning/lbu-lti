@@ -15,7 +15,9 @@
  */
 package uk.ac.leedsbeckett.lti.services.nrps;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,20 +25,22 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-public class NrpsMember
+@JsonIgnoreProperties({ "status", "given_name", "family_name", "middle_name", "email", "lis_person_sourcedid", "roles" })
+public class NrpsMember implements Serializable
 {
   static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );
   
-  boolean valid;
+  private final String name;
+  private final String userId;
 
-  String name;
-  String userId;
-  
-  public boolean isValid()
+  public NrpsMember( 
+          @JsonProperty("name")    String name, 
+          @JsonProperty("user_id") String userId )
   {
-    return valid;
+    this.name = name;
+    this.userId = userId;
   }
-
+  
   public String getName()
   {
     return name;
@@ -45,24 +49,6 @@ public class NrpsMember
   public String getUserId()
   {
     return userId;
-  }
-  
-  public void load( JsonNode node )
-  {
-    if ( 
-         !node.has( "name" ) || 
-         !node.get( "name" ).isTextual() || 
-         !node.has( "user_id" ) ||
-         !node.get( "user_id" ).isTextual()
-       )
-    {
-      logger.warning( "Invalid fields." );
-      return;
-    }
-    name    = node.get( "name" ).textValue();
-    userId  = node.get( "user_id" ).textValue();
-    
-    valid = true;
   }
   
   public void dumpToLog()

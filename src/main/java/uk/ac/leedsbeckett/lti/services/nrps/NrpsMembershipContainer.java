@@ -15,12 +15,8 @@
  */
 package uk.ac.leedsbeckett.lti.services.nrps;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.ArrayList;
-import java.util.Iterator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -29,20 +25,24 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-public class NrpsMembershipContainer
+public class NrpsMembershipContainer implements Serializable
 {
   static final Logger logger = Logger.getLogger( NrpsMembershipContainer.class.getName() );
   
-  boolean valid=false;
-  String id = null;
-  NrpsContext context = new NrpsContext();
-  ArrayList<NrpsMember> members = new ArrayList<>();
-  
-  public boolean isValid()
-  {
-    return valid;
-  }
+  private final String id;
+  private final NrpsContext context;
+  private final List<NrpsMember> members;
 
+  public NrpsMembershipContainer( 
+          @JsonProperty("id")       String id, 
+          @JsonProperty("context")  NrpsContext context, 
+          @JsonProperty("members")  List<NrpsMember> members )
+  {
+    this.id = id;
+    this.context = context;
+    this.members = members;
+  }
+  
   public String getId()
   {
     return id;
@@ -51,73 +51,6 @@ public class NrpsMembershipContainer
   public List<NrpsMember> getMembers()
   {
     return members;
-  }
-  
-  public void load( String json )
-  {
-    try
-    {
-      ObjectMapper mapper = new ObjectMapper();
-      JsonFactory factory = mapper.getFactory();
-      JsonParser parser = factory.createParser( json );
-      JsonNode node = mapper.readTree( parser );
-      JsonNode child;
-      if ( node.isObject() )
-      {
-        logger.fine( "Loading base JSON object." );
-        
-        if ( !node.has( "id" ) || 
-             !node.has( "context" ) || 
-             !node.has( "members" ) )
-        {
-          logger.warning( "Missing fields." );
-          return;
-        }
-        
-        child = node.get( "id" );
-        if ( !child.isTextual() )
-        {
-          logger.warning( "Non-text ID." );
-          return;
-        }
-        id = child.textValue();
-        
-        child = node.get( "context" );
-        if ( !child.isContainerNode() )
-        {
-          logger.warning( "Non container context." );
-          return;
-        }
-        context.load( child );
-        if ( !context.isValid() )
-          return;
-        
-        child = node.get( "members" );
-        if ( !child.isArray() )
-        {
-          logger.warning( "members node is not array" );
-          return;          
-        }
-        
-        JsonNode element;
-        Iterator<JsonNode> i = child.elements();
-        while ( i.hasNext() )
-        {
-          element = i.next();
-          NrpsMember member = new NrpsMember();
-          member.load( element );
-          if ( !member.isValid() )
-            return;
-          members.add( member );
-        }
-      }
-      
-      valid = true;
-    }
-    catch ( Exception e )
-    {
-      logger.log( Level.SEVERE, "Exception while trying to parse JSON.", e );
-    }
   }
   
   public void dumpToLog()

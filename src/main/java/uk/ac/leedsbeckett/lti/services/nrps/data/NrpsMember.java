@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.leedsbeckett.lti.services.nrps;
+package uk.ac.leedsbeckett.lti.services.nrps.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.logging.Level;
@@ -24,44 +25,35 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-public class NrpsContext implements Serializable
+@JsonIgnoreProperties({ "status", "given_name", "family_name", "middle_name", "email", "lis_person_sourcedid", "roles" })
+public class NrpsMember implements Serializable
 {
-  static final Logger logger = Logger.getLogger( NrpsContext.class.getName() );
-
-  private final String id;
-  private final String label;
-  private final String title;
-
-  public NrpsContext( 
-          @JsonProperty("id")    String id, 
-          @JsonProperty("label") String label, 
-          @JsonProperty("title") String title )
-  {
-    this.id = id;
-    this.label = label;
-    this.title = title;
-  }
-
+  static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );
   
-  public String getId()
+  private final String name;
+  private final String userId;
+
+  public NrpsMember( 
+          @JsonProperty("name")    String name, 
+          @JsonProperty("user_id") String userId )
   {
-    return id;
+    this.name = name;
+    this.userId = userId;
+  }
+  
+  public String getName()
+  {
+    return name;
   }
 
-  public String getLabel()
+  public String getUserId()
   {
-    return label;
+    return userId;
   }
-
-  public String getTitle()
-  {
-    return title;
-  }
- 
+  
   public void dumpToLog()
   {
-    logger.log( Level.INFO, id );
-    logger.log( Level.INFO, label );
-    logger.log( Level.INFO, title );
+    logger.log( Level.INFO, name );
+    logger.log( Level.INFO, userId );
   }
 }

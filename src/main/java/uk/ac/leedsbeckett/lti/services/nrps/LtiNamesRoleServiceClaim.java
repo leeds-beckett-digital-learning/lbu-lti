@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.ac.leedsbeckett.lti.claims;
+package uk.ac.leedsbeckett.lti.services.nrps;
 
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
 import java.util.List;
+import uk.ac.leedsbeckett.lti.claims.ClaimHashMap;
 import uk.ac.leedsbeckett.lti.services.LtiServiceScope;
 
 /**
@@ -28,7 +29,7 @@ import uk.ac.leedsbeckett.lti.services.LtiServiceScope;
  */
 public class LtiNamesRoleServiceClaim extends ClaimHashMap implements Serializable
 {
-  public static final String NAME                = "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice";
+  public static final String NAME                = "https://purl.imsglobal.org/spec/lti-nrps/claim/namesroleservice";          
   public static final LtiServiceScope SCOPE = 
           new LtiServiceScope( "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly" );
   

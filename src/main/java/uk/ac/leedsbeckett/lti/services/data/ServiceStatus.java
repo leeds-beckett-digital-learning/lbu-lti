@@ -13,13 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.leedsbeckett.lti.services.nrps;
+package uk.ac.leedsbeckett.lti.services.data;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.io.Serializable;
 
 /**
  *
  * @author maber01
  */
-public class NrpsMessage
+public class ServiceStatus implements Serializable
 {
-  
+  private final int status;
+  private final String message;
+
+  public ServiceStatus( 
+          @JsonProperty("status")  int status, 
+          @JsonProperty("message") String message )
+  {
+    this.status = status;
+    this.message = message;
+  }
+
+  public int getStatus()
+  {
+    return status;
+  }
+
+  public String getMessage()
+  {
+    return message;
+  }
 }

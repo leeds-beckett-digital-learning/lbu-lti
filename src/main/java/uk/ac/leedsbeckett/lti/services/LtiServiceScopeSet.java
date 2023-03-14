@@ -16,7 +16,6 @@
 package uk.ac.leedsbeckett.lti.services;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -32,7 +31,11 @@ public class LtiServiceScopeSet
   {
     if ( StringUtils.isBlank( additionalscope.getSpecification() ) || specsInOrder.contains( additionalscope ) )
       return;
+    // if not already in, add the new scope
+    specsInOrder.add( additionalscope );
+    // make sure the scopes are sorted to ensure same set always gives same result
     specsInOrder.sort(( LtiServiceScope o1, LtiServiceScope o2 ) -> o1.specification.compareTo(o2.specification ));
+    // concatenate scopes with space delimiter
     StringBuilder sb = new StringBuilder();
     boolean first = true;
     for ( LtiServiceScope scope : specsInOrder )
@@ -41,6 +44,7 @@ public class LtiServiceScopeSet
       first = false;
       sb.append( scope.getSpecification() );
     }
+    // Store the spec
     scopespec = sb.toString();
   }
   

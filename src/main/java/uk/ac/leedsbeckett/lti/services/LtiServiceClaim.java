@@ -15,24 +15,21 @@
  */
 package uk.ac.leedsbeckett.lti.services;
 
-import org.apache.commons.lang3.StringUtils;
+import io.jsonwebtoken.Claims;
+import java.io.Serializable;
+import uk.ac.leedsbeckett.lti.claims.ClaimHashMap;
 
 /**
  *
  * @author maber01
  */
-public class LtiServiceScope
+public abstract class LtiServiceClaim extends ClaimHashMap implements Serializable
 {
-  String specification;
-  public LtiServiceScope( String specification )
-  {
-    if ( StringUtils.isBlank( specification ) )
-      throw new IllegalArgumentException( "Blank specification for LtiServiceScope is not allowed." );
-    this.specification = specification.trim();
-  }
+  public static final String NAME           = null;
+  public static final LtiServiceScope SCOPE = null; 
   
-  public String getSpecification()
+  public LtiServiceClaim( Claims claims, String name )
   {
-    return specification;
+    super( claims, name );
   }
 }

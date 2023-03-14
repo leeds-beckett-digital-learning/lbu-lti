@@ -16,6 +16,7 @@
 
 package uk.ac.leedsbeckett.lti.claims;
 
+import uk.ac.leedsbeckett.lti.services.nrps.LtiNamesRoleServiceClaim;
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
 import java.util.Collection;

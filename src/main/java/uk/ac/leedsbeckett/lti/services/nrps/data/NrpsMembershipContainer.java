@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.leedsbeckett.lti.services.nrps;
+package uk.ac.leedsbeckett.lti.services.nrps.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,35 +25,39 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-@JsonIgnoreProperties({ "status", "given_name", "family_name", "middle_name", "email", "lis_person_sourcedid", "roles" })
-public class NrpsMember implements Serializable
+public class NrpsMembershipContainer implements Serializable
 {
-  static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );
+  static final Logger logger = Logger.getLogger( NrpsMembershipContainer.class.getName() );
   
-  private final String name;
-  private final String userId;
+  private final String id;
+  private final NrpsContext context;
+  private final List<NrpsMember> members;
 
-  public NrpsMember( 
-          @JsonProperty("name")    String name, 
-          @JsonProperty("user_id") String userId )
+  public NrpsMembershipContainer( 
+          @JsonProperty("id")       String id, 
+          @JsonProperty("context")  NrpsContext context, 
+          @JsonProperty("members")  List<NrpsMember> members )
   {
-    this.name = name;
-    this.userId = userId;
+    this.id = id;
+    this.context = context;
+    this.members = members;
   }
   
-  public String getName()
+  public String getId()
   {
-    return name;
+    return id;
   }
-
-  public String getUserId()
+  
+  public List<NrpsMember> getMembers()
   {
-    return userId;
+    return members;
   }
   
   public void dumpToLog()
   {
-    logger.log( Level.INFO, name );
-    logger.log( Level.INFO, userId );
+    logger.log( Level.INFO, id );
+    context.dumpToLog();
+    for ( NrpsMember m : members )
+      m.dumpToLog();
   }
 }

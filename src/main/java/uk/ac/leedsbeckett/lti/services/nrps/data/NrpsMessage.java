@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package uk.ac.leedsbeckett.lti.services.nrps;
+package uk.ac.leedsbeckett.lti.services.nrps.data;
 
 /**
  *
  * @author maber01
  */
-public class NrpsRole
+public class NrpsMessage
 {
   
 }

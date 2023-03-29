@@ -18,10 +18,15 @@ package uk.ac.leedsbeckett.lti.claims;
 
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 /**
  * Represents the LTI role claim.
+ * See https://imsglobal.org/spec/lti/v1p3/#role-vocabularies
+ * A.2 Role vocabularies
+ * 
+ * Only a few roles have been implemented here so far.
  * 
  * @author jon
  */
@@ -31,9 +36,17 @@ public class LtiRoleClaims extends ClaimList implements Serializable
   
   public static final String NAME = "https://purl.imsglobal.org/spec/lti/claim/roles";
   
-  Object o;
-  boolean standardinstructor=false;
-  boolean standardlearner=false;
+  public static final String MEMBERSHIP_ADMINISTRATOR_ROLE = "http://purl.imsglobal.org/vocab/lis/v2/membership#Administrator";
+  public static final String MEMBERSHIP_INSTRUCTOR_ROLE    = "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor";
+  public static final String MEMBERSHIP_LEARNER_ROLE       = "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner";
+  public static final String INSTITUTION_STUDENT_ROLE      = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Student";
+  public static final String INSTITUTION_STAFF_ROLE        = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Staff";
+  public static final String INSTITUTION_FACULTY_ROLE      = "http://purl.imsglobal.org/vocab/lis/v2/institution/person#Faculty";
+  public static final String SYSTEM_ADMINISTRATOR_ROLE     = "http://purl.imsglobal.org/vocab/lis/v2/system/person#Administrator";
+
+
+  final HashSet roleSet = new HashSet<>();
+  
   
   /**
    * Construct from generic jsonwebtoken claims
@@ -46,20 +59,12 @@ public class LtiRoleClaims extends ClaimList implements Serializable
     for ( Object item : list )
     {
       logger.fine( item.toString() );
-      if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Instructor".equals( item.toString() ) )
-        standardinstructor=true;
-      if ( "http://purl.imsglobal.org/vocab/lis/v2/membership#Learner".equals( item.toString() ) )
-        standardlearner=true;
+      roleSet.add( item );
     }
   }
 
-  public boolean isInStandardInstructorRole()
+  public boolean isInRole( String role )
   {
-    return standardinstructor;
-  }
-
-  public boolean isInStandardLearnerRole()
-  {
-    return standardlearner;
-  }
+    return roleSet.contains( role );
+  }  
 }

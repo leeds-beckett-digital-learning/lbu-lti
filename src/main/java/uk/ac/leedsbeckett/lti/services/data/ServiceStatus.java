@@ -25,19 +25,27 @@ import java.io.Serializable;
 public class ServiceStatus implements Serializable
 {
   private final int status;
+  private final String code;
   private final String message;
 
   public ServiceStatus( 
           @JsonProperty("status")  int status, 
+          @JsonProperty("code")    String code,
           @JsonProperty("message") String message )
   {
-    this.status = status;
+    this.status  = status;
+    this.code    = code;
     this.message = message;
   }
 
   public int getStatus()
   {
     return status;
+  }
+
+  public String getCode()
+  {
+    return code;
   }
 
   public String getMessage()

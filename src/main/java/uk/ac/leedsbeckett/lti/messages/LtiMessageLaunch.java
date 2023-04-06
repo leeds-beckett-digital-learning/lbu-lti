@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import uk.ac.leedsbeckett.lti.LtiException;
-import uk.ac.leedsbeckett.lti.config.ClientLtiConfiguration;
 import uk.ac.leedsbeckett.lti.config.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
@@ -63,7 +62,7 @@ public class LtiMessageLaunch
   {
     if ( state == null )
       throw new LtiException( "No state" );
-    ClientLtiConfiguration clientconfig = config.getClientLtiConfiguration( state.getClientKey() );
+    LtiConfiguration.IssuerLtiConfiguration.ClientLtiConfiguration clientconfig = config.getClientLtiConfiguration( state.getClientKey() );
     if ( clientconfig == null )
       throw new LtiException( "No client" );
     String id_token = request.getParameter( "id_token" );

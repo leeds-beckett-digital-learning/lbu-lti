@@ -27,6 +27,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
 import javax.crypto.NoSuchPaddingException;
 import uk.ac.leedsbeckett.lti.LtiException;
+import uk.ac.leedsbeckett.lti.jwks.Jwk;
+import uk.ac.leedsbeckett.lti.jwks.Jwks;
 
 /**
  * This class takes a JSON representation of the components of an RSA public key 
@@ -71,5 +73,22 @@ public class JsonKeyBuilder
 
     RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(modulo, exponent);
     return new KeyConfiguration( kid, factory.generatePublic(pubSpec), enabled );
+  }
+
+  public static PublicKey build( Jwk jwk ) throws LtiException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidKeyException
+  {
+    if ( !"RSA".equals( jwk.getKty() ) )
+      throw new LtiException( "Only RSA public keys are supported." );
+    
+    byte[] expBytes = Decoders.BASE64URL.decode( jwk.getE() );
+    byte[] modBytes = Decoders.BASE64URL.decode( jwk.getN() );
+
+    BigInteger modulo   = new BigInteger(1, modBytes);
+    BigInteger exponent = new BigInteger(1, expBytes);
+
+    KeyFactory factory = KeyFactory.getInstance("RSA");
+
+    RSAPublicKeySpec pubSpec = new RSAPublicKeySpec(modulo, exponent);
+    return factory.generatePublic(pubSpec);
   }
 }

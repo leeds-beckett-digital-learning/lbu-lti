@@ -20,17 +20,23 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.SigningKeyResolver;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import uk.ac.leedsbeckett.lti.jwks.JwksSigningKeyResolver;
 
 
 /**
@@ -45,9 +51,39 @@ public class LtiConfiguration
   static final Logger logger = Logger.getLogger( LtiConfiguration.class.getName() );
 
   String strpathconfig;
-  HashMap<String,IssuerLtiConfiguration> issuermap = new HashMap<>();
-  
+  HashMap<String,IssuerLtiConfiguration> issuermap = new HashMap<>();  
   String rawconfig;
+  
+  JwksSigningKeyResolver jwksResolver = null;
+
+  
+  public LtiConfiguration()
+  {
+  }
+
+  public JwksSigningKeyResolver getJwksSigningKeyResolver()
+  {
+    return jwksResolver;
+  }
+
+  public void setJwksSigningKeyResolver( JwksSigningKeyResolver jwksResolver )
+  {
+    this.jwksResolver = jwksResolver;
+  }
+  
+  
+  
+  public List<String> getAllJksUrls()
+  {
+    ArrayList<String> list = new ArrayList<>();
+    for ( IssuerLtiConfiguration iss : issuermap.values() )
+      for ( IssuerLtiConfiguration.ClientLtiConfiguration client : iss.clientmap.values() )
+      {
+        if ( client.getAuthJwksUrl() != null )
+          list.add( client.getAuthJwksUrl() );
+      }
+    return list;
+  }
   
   /**
    * Fetch a client config based on a key that identifies both the issuer
@@ -56,7 +92,7 @@ public class LtiConfiguration
    * @param clientkey A key with the IDs in.
    * @return The requested config or null if not found.
    */
-  public ClientLtiConfiguration getClientLtiConfiguration( ClientLtiConfigurationKey clientkey )
+  public IssuerLtiConfiguration.ClientLtiConfiguration getClientLtiConfiguration( ClientLtiConfigurationKey clientkey )
   {
     return getClientLtiConfiguration( clientkey.getIssuerName(), clientkey.getClientId() );
   }  
@@ -69,7 +105,7 @@ public class LtiConfiguration
    * @param client_id The ID of a client of the issuer.
    * @return A client configuration object or null if not found.
    */
-  public ClientLtiConfiguration getClientLtiConfiguration( String issuername, String client_id )
+  public IssuerLtiConfiguration.ClientLtiConfiguration getClientLtiConfiguration( String issuername, String client_id )
   {
     IssuerLtiConfiguration issuer = issuermap.get( issuername );
     if ( issuer == null ) return null;
@@ -163,11 +199,12 @@ public class LtiConfiguration
   {
     String clientid = clientnode.get( "client_id" ).asText();
     logger.log(Level.FINE, "LtiConfiguration.loadClient() client_id = {0}", clientid );
-    ClientLtiConfiguration client = new ClientLtiConfiguration( clientid );
+    IssuerLtiConfiguration.ClientLtiConfiguration client = issuer.createClientLtiConfiguration( clientid );
     
     client.setDefault(        clientnode.get( "default" ).asBoolean()          );
     client.setAuthLoginUrl(   clientnode.get( "auth_login_url" ).asText()      );
     client.setAuthTokenUrl(   clientnode.get( "auth_token_url" ).asText()      );
+    client.setAuthJwksUrl(    clientnode.get( "auth_jwks_url" ).asText()      );
 
     if ( clientnode.has( "keys" ) )
     {
@@ -189,7 +226,7 @@ public class LtiConfiguration
           }
         }
       }
-    }
+    }    
     JsonNode depnodea = clientnode.get( "deployment_ids" );
     ArrayList<String> list = new ArrayList<>();
     if ( depnodea.isArray() )
@@ -204,4 +241,199 @@ public class LtiConfiguration
     client.setDeploymentIds( list.toArray( new String[list.size()] ) );
     issuer.putClientLtiConfiguration( client );
   }   
+
+
+  /**
+   * Represents the configuration of the issuer of the client configuration. An
+   * issuer can issue multiple LTI 1.3 tools.
+   * 
+   * @author jon
+   */
+  public class IssuerLtiConfiguration
+  {
+    String issuer;
+    HashMap<String,ClientLtiConfiguration> clientmap = new HashMap<>();
+
+    /**
+     * Construct an 'empty' issuer using an issuer name.
+     * 
+     * @param issuer Value of the issuer this config represents.
+     */
+    public IssuerLtiConfiguration( String issuer )
+    {
+      this.issuer = issuer;
+    }
+
+    public ClientLtiConfiguration createClientLtiConfiguration( String s )
+    {
+      return new ClientLtiConfiguration( s );
+    }
+    
+    
+    /**
+     * Get the name of this issuer.
+     * 
+     * @return The name value;
+     */
+    public String getIssuerLtiConfiguration()
+    {
+      return issuer;
+    }
+
+    /**
+     * Add another client config to this issuer config.
+     * 
+     * @param client The client config to add.
+     */
+    public void putClientLtiConfiguration( ClientLtiConfiguration client )
+    {
+      clientmap.put( client.getClientId(), client );
+    }
+
+    /**
+     * Get a client config from this issuer based on the client ID.
+     * 
+     * @param client_id The ID of the desired client.
+     * @return Either null or the identified client ID.
+     */
+    public ClientLtiConfiguration getClientLtiConfiguration( String client_id )
+    {
+      return clientmap.get( client_id );
+    }  
+
+    /**
+     * Represents the configuration of an LTI 1.3 client. I.e. information about
+     * an LTI tool which has been advertised to the rest of the world.
+     * 
+     * @author jon
+     */
+    public class ClientLtiConfiguration implements SigningKeyResolver
+    {
+      boolean bdefault;
+      String clientId;
+      String authLoginUrl;
+      String authTokenUrl;
+      String authJwksUrl;
+      final HashMap<String,KeyConfiguration> keyConfigurationMap = new HashMap<>();
+      String[] deploymentIds;
+
+      public ClientLtiConfiguration( String client_id )
+      {
+        this.clientId = client_id;
+      }
+
+      public boolean isDefault()
+      {
+        return bdefault;
+      }
+
+      void setDefault( boolean bdefault )
+      {
+        this.bdefault = bdefault;
+      }
+
+      public String getClientId()
+      {
+        return clientId;
+      }
+
+      void setClientId( String clientId )
+      {
+        this.clientId = clientId;
+      }
+
+      public String getAuthLoginUrl()
+      {
+        return authLoginUrl;
+      }
+
+      void setAuthLoginUrl( String authLoginUrl )
+      {
+        this.authLoginUrl = authLoginUrl;
+      }
+
+      public String getAuthTokenUrl()
+      {
+        return authTokenUrl;
+      }
+
+      void setAuthTokenUrl( String authTokenUrl )
+      {
+        this.authTokenUrl = authTokenUrl;
+      }
+
+      public String getAuthJwksUrl()
+      {
+        return authJwksUrl;
+      }
+
+      public void setAuthJwksUrl( String authJwksUrl )
+      {
+        this.authJwksUrl = authJwksUrl;
+      }
+
+      public KeyConfiguration getKeyConfiguration( String kid )
+      {
+        return keyConfigurationMap.get( kid );
+      }
+
+      void putKeyConfiguration( KeyConfiguration kc )
+      {
+        keyConfigurationMap.put( kc.getKid(), kc );
+      }
+
+      public String[] getDeploymentIds()
+      {
+        return deploymentIds;
+      }
+
+      void setDeploymentIds( String[] deploymentIds )
+      {
+        this.deploymentIds = deploymentIds;
+      }    
+
+      @Override
+      public Key resolveSigningKey( JwsHeader jh, Claims claims )
+      {
+        return resolveSigningKey( jh );
+      }
+
+      @Override
+      public Key resolveSigningKey( JwsHeader jh, String string )
+      {
+        return resolveSigningKey( jh );
+      }
+
+      private Key resolveSigningKey( JwsHeader jh )
+      {
+        logger.log(Level.FINE, "Looking for key with ID {0}", jh.getKeyId());
+        KeyConfiguration kc = this.getKeyConfiguration( jh.getKeyId() );
+
+        if ( kc != null )
+        {
+          if ( kc.isEnabled() )
+            return kc.getKey();
+
+          logger.log( Level.INFO, "LTI signing key found but is not enabled in configuration." );
+          return null;
+        }
+
+        if ( jwksResolver == null )
+        {
+          logger.log( Level.SEVERE, "Key not found in client LTI configuration. No Jwks resolver." );
+          return null;
+        }
+        if ( authJwksUrl == null )
+        {
+          logger.log( Level.SEVERE, "No JWKS URL to search for keys." );
+          return null;
+        }
+
+        logger.log( Level.FINE, "Looking for key in Jwks resolver." );
+        return jwksResolver.resolveSigningKey( authJwksUrl, jh.getKeyId() );
+      }  
+    }
+
+
+  }
 }

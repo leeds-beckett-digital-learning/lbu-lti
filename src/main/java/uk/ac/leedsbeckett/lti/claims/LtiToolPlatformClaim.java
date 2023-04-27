@@ -47,4 +47,30 @@ public class LtiToolPlatformClaim extends ClaimHashMap implements Serializable
   {
     return getAsString( "url" );
   }
+  
+  public String getContactEmail()
+  {
+    return getAsString( "contact_email" );
+  }
+
+  public String getDescription()
+  {
+    return getAsString( "description" );
+  }
+
+  public String getName()
+  {
+    return getAsString( "name" );
+  }
+
+  public String getProductFamilyCode()
+  {
+    return getAsString( "product_family_code" );
+  }
+
+  public String getVersion()
+  {
+    return getAsString( "version" );
+  }
+
 }

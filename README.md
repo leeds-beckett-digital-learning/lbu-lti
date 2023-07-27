@@ -10,4 +10,20 @@ The code has not been exhaustively tested for security loopholes. Comments on se
 
 ## Using this library
 
-This library has not been published in Maven Central yet so packages are only available from github and cannot be fetched anonymously. However, the packages are public so any authenticated user on github.com can access them. This means you need an account on GitHub and you need to create a GitHub personal access token. Then in your build you need to set up the package repository and specify authentication with your GitHub user name and the personal access token in place of a password. 
+This library has now been published in Maven Central.
+
+### For gradle
+
+```
+implementation 'io.github.leeds-beckett-digital-learning:lbu-lti:0.1.1'
+```
+
+### For maven
+
+```
+<dependency>
+    <groupId>io.github.leeds-beckett-digital-learning</groupId>
+    <artifactId>lbu-lti</artifactId>
+    <version>0.1.1</version>
+</dependency>
+```

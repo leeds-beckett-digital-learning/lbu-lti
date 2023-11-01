@@ -132,7 +132,7 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
     LtiClaims lticlaims = new LtiClaims( ml.getClaims() );
     state.setPersonId( lticlaims.get( "sub" ).toString() );
     state.setPersonName( lticlaims.get( "name" ).toString() );
-    state.setPlatformName( lticlaims.getLtiToolPlatform().getUrl() );      
+    state.setPlatformName( lticlaims.getLtiToolPlatform().getCombinedId() );      
     state.setRoles( lticlaims.getLtiRoles() );
     statestore.updateState( state );
     

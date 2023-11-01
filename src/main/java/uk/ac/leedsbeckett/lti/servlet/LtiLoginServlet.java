@@ -20,6 +20,8 @@ import uk.ac.leedsbeckett.lti.config.LtiConfiguration;
 import uk.ac.leedsbeckett.lti.state.LtiStateStore;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.ServletException;
@@ -89,9 +91,22 @@ public abstract class LtiLoginServlet<T extends LtiState> extends LtiServlet<T>
     {
       builder.append( request.getQueryString() );
       builder.append( "&" );
-    }    
+    }
+    if ( "POST".equals( request.getMethod() ) )
+    {
+      for ( String pname : request.getParameterMap().keySet() )
+      {
+        for ( String pval : request.getParameterMap().get( pname ) )
+        {
+          builder.append( URLEncoder.encode( pname, StandardCharsets.UTF_8 ) );
+          builder.append( "=" );
+          builder.append( URLEncoder.encode( pval, StandardCharsets.UTF_8 ) );
+          builder.append( "&" );
+        }
+      }
+    }
     // This URL is used if the cookie test is passed so add parameter
-    builder.append( "&lti1p3_cookie_check_passed=true" );
+    builder.append( "lti1p3_cookie_check_passed=true" );
     builder.append( "';\n" );
     
     // Insert those two javascript variables into the page template.

@@ -16,6 +16,7 @@
 package uk.ac.leedsbeckett.lti.jwks;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.security.PublicKey;
@@ -28,6 +29,7 @@ import uk.ac.leedsbeckett.lti.config.JsonKeyBuilder;
  *
  * @author maber01
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Jwk implements Serializable
 {
   private final String kty;

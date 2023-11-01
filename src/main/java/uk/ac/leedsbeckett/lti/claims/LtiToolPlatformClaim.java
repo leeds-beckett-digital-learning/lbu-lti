@@ -16,6 +16,7 @@
 
 package uk.ac.leedsbeckett.lti.claims;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.jsonwebtoken.Claims;
 import java.io.Serializable;
 
@@ -73,4 +74,29 @@ public class LtiToolPlatformClaim extends ClaimHashMap implements Serializable
     return getAsString( "version" );
   }
 
+  @JsonIgnore
+  public String getCombinedId()
+  {
+    String[] part = new String[3];
+    StringBuilder sb = new StringBuilder();
+    String url = getUrl();
+
+    if ( url != null ) return url;
+    
+    part[0] = getProductFamilyCode();
+    part[1] = getName();
+    part[2] = getGuid();
+    
+    for ( int i=0; i<part.length; i++ )
+    {
+      if ( part[i] != null )
+      {
+        if ( sb.length() > 0 )
+          sb.append(  "_" );
+        sb.append( part[i] );
+      }
+    }
+    
+    return sb.toString();
+  }
 }

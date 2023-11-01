@@ -4,6 +4,7 @@
  */
 package uk.ac.leedsbeckett.lti.registration;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.HashMap;
 
@@ -11,7 +12,8 @@ import java.util.HashMap;
  *
  * @author jon
  */
-@JsonSerialize(using = LtiToolConfigurationCustomParametersSerializer.class)
+@JsonSerialize( using = LtiToolConfigurationCustomParametersSerializer.class )
+@JsonDeserialize( using = LtiToolConfigurationCustomParametersDeserializer.class )
 public class LtiToolConfigurationCustomParameters
 {
   HashMap<String,String> params = new HashMap<>();

@@ -59,4 +59,5 @@ public class ClientLtiConfigurationKey implements Serializable
   {
     return clientId;
   }
+  
 }

@@ -28,6 +28,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
+import uk.ac.leedsbeckett.lti.config.ClientLtiConfiguration;
 import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 import uk.ac.leedsbeckett.lti.state.LtiState;
 
@@ -158,7 +159,7 @@ public abstract class LtiLoginServlet<T extends LtiState> extends LtiServlet<T>
     String client_id        = request.getParameter( "client_id" );
     String lti_message_hint = request.getParameter( "lti_message_hint" );
     
-    LtiConfiguration.IssuerLtiConfiguration.ClientLtiConfiguration client = config.getClientLtiConfiguration( iss, client_id );
+    ClientLtiConfiguration client = config.getClientLtiConfiguration( iss, client_id );
     if ( client == null )
     {
       logger.log( Level.SEVERE, "Unable to find client in configuration." );

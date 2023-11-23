@@ -162,7 +162,7 @@ public abstract class LtiLoginServlet<T extends LtiState> extends LtiServlet<T>
     ClientLtiConfiguration client = config.getClientLtiConfiguration( iss, client_id );
     if ( client == null )
     {
-      logger.log( Level.SEVERE, "Unable to find client in configuration." );
+      logger.log(Level.SEVERE, "Unable to find client in configuration. ISS = {0} Client ID = {1}", new Object[ ]{iss, client_id} );
       response.sendError( 500, "Unable to find client in configuration." );
       return;
     }

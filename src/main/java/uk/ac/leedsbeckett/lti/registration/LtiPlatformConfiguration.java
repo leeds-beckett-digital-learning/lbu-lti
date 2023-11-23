@@ -17,7 +17,7 @@ public class LtiPlatformConfiguration implements Serializable
 {
   String productFamilyCode;
   String version;
-  String[] messagesSupported;
+  LtiSupportedMessage[] messagesSupported;
   String[] variables;
 
   
@@ -44,13 +44,13 @@ public class LtiPlatformConfiguration implements Serializable
   }
 
   @JsonProperty( "messages_supported" )
-  public String[] getMessagesSupported()
+  public LtiSupportedMessage[] getMessagesSupported()
   {
     return messagesSupported;
   }
 
   @JsonProperty( "messages_supported" )
-  public void setMessagesSupported( String[] messagesSupported )
+  public void setMessagesSupported( LtiSupportedMessage[] messagesSupported )
   {
     this.messagesSupported = messagesSupported;
   }

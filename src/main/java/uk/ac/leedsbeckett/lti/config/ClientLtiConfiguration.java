@@ -15,7 +15,6 @@ import io.jsonwebtoken.SigningKeyResolver;
 public interface ClientLtiConfiguration extends SigningKeyResolver
 {
   public String getIssuerId();
-  public String getToolId();
   public String getClientId();
   public String getAuthLoginUrl();
   public String getAuthTokenUrl();

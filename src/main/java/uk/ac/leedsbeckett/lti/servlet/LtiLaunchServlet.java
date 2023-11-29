@@ -117,7 +117,10 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
     Claims claims = ml.getClaims();
     logger.log(Level.FINE, "Claims : \n{0}", claims.toString() );
     
-    if ( !"LtiResourceLinkRequest".equals( claims.get( "https://purl.imsglobal.org/spec/lti/claim/message_type" ) ) )
+    LtiClaims lticlaims = new LtiClaims( ml.getClaims() );
+    String messagetype = lticlaims.getMessageType();
+    logger.log(Level.INFO, "Message type : {0}", messagetype );
+    if ( !"LtiResourceLinkRequest".equals( messagetype ) && !"LtiDeepLinkingRequest".equals( messagetype ) )
     {
       response.sendError( 500, "An unknown type of message was found in the launch request." );
       return;      
@@ -128,15 +131,20 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
       response.sendError( 500, "This tool can only handle LTI version 1.3." );
       return;      
     }
-    
-    LtiClaims lticlaims = new LtiClaims( ml.getClaims() );
+
+    state.setLaunchType( LtiState.LAUNCH_TYPE_NORMAL );
+    if ( "LtiDeepLinkingRequest".equals( messagetype ) )
+      state.setLaunchType( LtiState.LAUNCH_TYPE_DEEP_LINK );
     state.setPersonId( lticlaims.get( "sub" ).toString() );
     state.setPersonName( lticlaims.get( "name" ).toString() );
     state.setPlatformName( lticlaims.getLtiToolPlatform().getCombinedId() );      
     state.setRoles( lticlaims.getLtiRoles() );
     statestore.updateState( state );
     
-    processLaunchRequest( lticlaims, state, request, response );
+    if ( state.getLaunchType() == LtiState.LAUNCH_TYPE_DEEP_LINK )
+      processDeepLinkRequest( lticlaims, state, request, response );
+    else
+      processLaunchRequest( lticlaims, state, request, response );
   }
   
   /**
@@ -152,6 +160,21 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
    * @throws IOException If, for example, the network connection is lost while sending data.
    */
   protected abstract void processLaunchRequest( LtiClaims lticlaims, T state, HttpServletRequest request, HttpServletResponse response )
+          throws ServletException, IOException;
+  
+  /**
+   * This method needs to be implemented in subclasses. It looks at the LTI state and the LTI
+   * Claims that have been validated and works out how to start the user's session with the
+   * tool and forward the user's browser to the right URL.
+   * 
+   * @param lticlaims The validated LTI claims.
+   * @param state The LTI state that was created during the login process
+   * @param request The HTTP request.
+   * @param response The HTTP response.
+   * @throws ServletException If a general HTTP exception occurs.
+   * @throws IOException If, for example, the network connection is lost while sending data.
+   */
+  protected abstract void processDeepLinkRequest( LtiClaims lticlaims, T state, HttpServletRequest request, HttpServletResponse response )
           throws ServletException, IOException;
   
   /**

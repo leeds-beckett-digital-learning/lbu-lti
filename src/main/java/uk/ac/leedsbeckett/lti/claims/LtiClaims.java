@@ -32,8 +32,11 @@ import java.util.Set;
  */
 public class LtiClaims implements Claims, Serializable
 {
+  public static final String MESSAGE_TYPE = "https://purl.imsglobal.org/spec/lti/claim/message_type";
+  
   Claims               wrapped;  // Is the implementation of this serializable?
   
+  String               ltimessagetype  = null;
   LtiContextClaim      lticontext      = null;
   LtiCustomClaim       lticustom       = null;
   LtiResourceClaim     ltiresource     = null;
@@ -41,6 +44,8 @@ public class LtiClaims implements Claims, Serializable
   LtiToolPlatformClaim ltitoolplatform = null;
 
   LtiNamesRoleServiceClaim ltinamesroleservice = null;
+
+  LtiDeepLinkingSettings ltideeplinkingsettings = null;
   
   /**
    * Constructs an object by wrapping a given claims object.
@@ -51,6 +56,8 @@ public class LtiClaims implements Claims, Serializable
   {
     assert wrapped != null;
     this.wrapped = wrapped;
+    if ( wrapped.containsKey( MESSAGE_TYPE ) )
+      ltimessagetype = wrapped.get( MESSAGE_TYPE, String.class );
     if ( wrapped.containsKey( LtiContextClaim.NAME ) )
       lticontext = new LtiContextClaim( wrapped );
     if ( wrapped.containsKey( LtiCustomClaim.NAME ) )
@@ -63,8 +70,15 @@ public class LtiClaims implements Claims, Serializable
       ltitoolplatform = new LtiToolPlatformClaim( wrapped );
     if ( wrapped.containsKey( LtiNamesRoleServiceClaim.NAME ) )
       ltinamesroleservice = new LtiNamesRoleServiceClaim( wrapped );
+    if ( wrapped.containsKey( LtiDeepLinkingSettings.NAME ) )
+      ltideeplinkingsettings = new LtiDeepLinkingSettings( wrapped );
   }
 
+  public String getMessageType()
+  {
+    return ltimessagetype;
+  }
+  
   /**
    * Gets the parsed LtiContext claim.
    * 
@@ -118,6 +132,11 @@ public class LtiClaims implements Claims, Serializable
   public LtiNamesRoleServiceClaim getLtiNamesRoleService()
   {
     return ltinamesroleservice;
+  }
+
+  public LtiDeepLinkingSettings getLtideeplinkingsettings()
+  {
+    return ltideeplinkingsettings;
   }
 
 

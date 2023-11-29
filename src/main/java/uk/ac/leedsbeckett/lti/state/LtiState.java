@@ -37,11 +37,15 @@ public class LtiState implements Serializable
 {
   static final Random random = new Random( System.currentTimeMillis() );
 
+  public static final int LAUNCH_TYPE_NORMAL = 0;
+  public static final int LAUNCH_TYPE_DEEP_LINK = 1;
+  
   final String id;
   String nonce;  // not final
   final long timestamp;
   final ClientLtiConfigurationKey clientKey;  
   
+  private int launchType;
   private String personId;
   private String personName;
   private String platformName;
@@ -138,6 +142,26 @@ public class LtiState implements Serializable
     return timestamp;
   }
 
+  /**
+   * Is this normal launch or deep linking launch?
+   * 
+   * @return Integer indicating type.
+   */
+  public int getLaunchType()
+  {
+    return launchType;
+  }
+
+  /**
+   * Set the type (from launch claims message type)
+   * 
+   * @param launchType Use constant of this class
+   */
+  public void setLaunchType( int launchType )
+  {
+    this.launchType = launchType;
+  }
+  
   /**
    * The ID of the person who is launching the resource.
    * 

@@ -29,6 +29,7 @@ import java.util.List;
 public class LtiDeepLinkingSettings extends ClaimHashMap implements Serializable
 {
   public static final String NAME = "https://purl.imsglobal.org/spec/lti-dl/claim/deep_linking_settings";
+  String data;
   List accepttypes;
   List acceptpresentationdocumenttargets;
 
@@ -47,6 +48,11 @@ public class LtiDeepLinkingSettings extends ClaimHashMap implements Serializable
   public String getDeepLinkReturnUrl()
   {
     return getAsString( "deep_link_return_url" );
+  }
+  
+  public String getData()
+  {
+    return getAsString( "data" );
   }
   
   public String[] getAcceptTypes()

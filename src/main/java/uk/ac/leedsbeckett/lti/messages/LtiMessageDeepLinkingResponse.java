@@ -20,7 +20,6 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import java.security.Key;
-import uk.ac.leedsbeckett.lti.state.LtiState;
 
 /**
  *
@@ -28,16 +27,14 @@ import uk.ac.leedsbeckett.lti.state.LtiState;
  */
 public class LtiMessageDeepLinkingResponse
 {
-  LtiState state;
   String kid;
   Key privateKey;
   Key publicKey;
         
   JwtBuilder builder;
 
-  public LtiMessageDeepLinkingResponse( LtiState state, String kid, Key privateKey, Key publicKey )
+  public LtiMessageDeepLinkingResponse( String kid, Key privateKey, Key publicKey )
   {
-    this.state = state;
     this.kid = kid;
     this.privateKey = privateKey;
     this.publicKey = publicKey;
@@ -45,7 +42,6 @@ public class LtiMessageDeepLinkingResponse
     builder = Jwts.builder()
     .setHeaderParam( "alg", "RS256" )
     .setHeaderParam( "kid", kid )
-    .claim( "justtesting", "thingy" )
     .signWith( privateKey );
   }
   
@@ -59,10 +55,10 @@ public class LtiMessageDeepLinkingResponse
     String s = builder.signWith(privateKey ).compact();
     
     // Under dev, parse to check
-    Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(publicKey ).build().parseClaimsJws( s );
-    String thingy = jws.getBody().get( "justtesting", String.class );
-    if ( !"thingy".equals( thingy ) )
-      throw new IllegalArgumentException( "Claims became mangled." );
+//    Jws<Claims> jws = Jwts.parserBuilder().setSigningKey(publicKey ).build().parseClaimsJws( s );
+//    String thingy = jws.getBody().get( "justtesting", String.class );
+//    if ( !"thingy".equals( thingy ) )
+//      throw new IllegalArgumentException( "Claims became mangled." );
     
     return s;
   }

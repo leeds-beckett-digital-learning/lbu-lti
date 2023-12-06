@@ -75,7 +75,7 @@ public class LtiStateStore<T extends LtiState>
    */
   public void updateState( T state )
   {
-    cache.put( state.getId(), state );
+    cache.replace( state.getId(), state );
   }
   
   /**

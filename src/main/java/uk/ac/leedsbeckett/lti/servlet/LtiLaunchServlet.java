@@ -79,6 +79,7 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
     }
 
     String stateid = request.getParameter( "state" );
+    logger.fine( "stateid = " + stateid );
     if ( StringUtils.isEmpty( stateid ) )
     {
       response.sendError( 500, "This URL requires a parameter named 'state'." );

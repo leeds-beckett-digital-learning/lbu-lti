@@ -36,7 +36,7 @@ import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
  */
 public class LtiState implements Serializable
 {
-  static final long NONCE_LIFETIME = 2000L;
+  static final long NONCE_LIFETIME = 10000L;
   
   static final Random random = new Random( System.currentTimeMillis() );
 

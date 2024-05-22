@@ -39,7 +39,7 @@ public class LtiMessageLaunch
   HttpServletRequest request;
   LtiState state;
   Claims claims;
-  
+
   /**
    * Constructor uses an HttpServletRequest to find out the user id_token
    * and a reference to an LtiState object.
@@ -73,15 +73,8 @@ public class LtiMessageLaunch
     logger.info( "Parsing id_token." );
     Jws<Claims> jws = Jwts.parserBuilder().setSigningKeyResolver( clientconfig ).build().parseClaimsJws( id_token );
     
-    String nonce = state.getNonce();
-    if ( nonce == null )
-      throw new LtiException( "Attempt to reuse old nonce." );
-    
-    if ( !nonce.equals( jws.getBody().get( "nonce" ) ) )
-      throw new LtiException( "Nonce doesn't match the one created by Login servlet." );
-    
+    //  Nonce check is moved into the LtiStateStore getState method
     claims = jws.getBody();
-    state.clearNonce();  // To be sure it cannot be used again
   }
 
   /** 

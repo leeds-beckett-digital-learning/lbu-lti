@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Random;
 import java.util.UUID;
+import uk.ac.leedsbeckett.lti.LtiException;
 import uk.ac.leedsbeckett.lti.claims.LtiRoleClaims;
 import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 
@@ -35,13 +36,18 @@ import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
  */
 public class LtiState implements Serializable
 {
+  static final long NONCE_LIFETIME = 2000L;
+  
   static final Random random = new Random( System.currentTimeMillis() );
 
+  
+  
   public static final int LAUNCH_TYPE_NORMAL = 0;
   public static final int LAUNCH_TYPE_DEEP_LINK = 1;
   
   final String id;
   String nonce;  // not final
+  long nonceTimestamp;
   final long timestamp;
   final ClientLtiConfigurationKey clientKey;  
   
@@ -61,6 +67,12 @@ public class LtiState implements Serializable
   {
     this.clientKey = clientKey;
     id = UUID.randomUUID().toString();
+    generateNewNonce();
+    timestamp = System.currentTimeMillis();
+  }
+ 
+  public void generateNewNonce()
+  {
     byte[] noncebytes = new byte[32];
     random.nextBytes( noncebytes );
     BigInteger bignonce = new BigInteger( 1, noncebytes );
@@ -69,9 +81,26 @@ public class LtiState implements Serializable
     while ( sb.length() < 64 )
       sb.append( "0" );
     nonce = sb.toString();
-    timestamp = System.currentTimeMillis();
+    nonceTimestamp = System.currentTimeMillis();
   }
- 
+  
+  /**
+   * Check that the claimed nonce matches the one that was last
+   * generated and that it was presented in a timely way.
+   * 
+   * @param claimedNonce The claimed nonce being validated.
+   * @throws uk.ac.leedsbeckett.lti.LtiException Thrown if the nonce doesn't match.
+   */
+  public void validateNonce( String claimedNonce )
+          throws LtiException
+  {
+    if ( !nonce.equals( claimedNonce ) )
+      throw new LtiException( "Possible attempt at security breach - invalid LTI state nonce." );
+    long now = System.currentTimeMillis();
+    if ( (now - nonceTimestamp) > NONCE_LIFETIME )
+      throw new LtiException( "Possible attempt at security breach - too much time elapsed between sending and receiving a nonce." );
+  }
+  
   /**
    * Issuer of the client key.
    * 
@@ -120,16 +149,6 @@ public class LtiState implements Serializable
   public String getNonce()
   {
     return nonce;
-  }
-
-  /**
-   * Clear the nonce after it is no longer needed to reduce the
-   * impact of a hacking attempt.
-   * 
-   */
-  public void clearNonce()
-  {
-    nonce = null;
   }
 
   /**

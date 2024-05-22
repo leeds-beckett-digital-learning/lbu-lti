@@ -93,8 +93,9 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
       return;
     }
     
-    T state = statestore.getState( stateid );
-    if ( state == null )
+    T state;
+    T peekedstate = statestore.peekState( stateid );
+    if ( peekedstate == null )
     {
       logger.log(Level.SEVERE, "Requested LTI 1.3 state has expired or never existed. {0}", stateid );
       response.sendError( 500, "Requested LTI 1.3 state has expired or never existed." );
@@ -102,11 +103,13 @@ public abstract class LtiLaunchServlet<T extends LtiState> extends LtiServlet<T>
     }
     
     logger.fine( "LtiLaunchServlet.processRequest() Passed basic validation of input and state." );    
-    LtiMessageLaunch ml = new LtiMessageLaunch( request, state );
+    LtiMessageLaunch ml = new LtiMessageLaunch( request, peekedstate );
     logger.fine( "LtiLaunchServlet.processRequest() Validating the LTI launch message." );
     try
     {
       ml.validate( config );
+      // This time the state has been checked against the claimed nonce.
+      state = statestore.getState( stateid, ml.getClaims().get( "nonce", String.class ) );
     }
     catch ( LtiException ex )
     {

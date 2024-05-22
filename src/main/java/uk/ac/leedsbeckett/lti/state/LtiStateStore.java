@@ -19,6 +19,7 @@ package uk.ac.leedsbeckett.lti.state;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.cache.Cache;
+import uk.ac.leedsbeckett.lti.LtiException;
 import uk.ac.leedsbeckett.lti.config.ClientLtiConfigurationKey;
 
 /**
@@ -77,14 +78,18 @@ public class LtiStateStore<T extends LtiState>
   {
     cache.replace( state.getId(), state );
   }
-  
+
+
   /**
-   * Get a state object keyed by its unique ID.
+   * Get a state object keyed by its unique ID only and don't validate a 
+   * nonce. The stored nonce won't be recreated because it hasn't been used.
+   * Should be used with care - the client doesn't necessarily 'own' the
+   * state if the state ID was intercepted somehow.
    * 
    * @param id The unique ID of the required state object.
    * @return The state object or null if not found or timed out.
    */
-  public T getState( String id )
+  public T peekState( String id )
   {
     long now = System.currentTimeMillis();
     T state = cache.get( id );
@@ -104,5 +109,26 @@ public class LtiStateStore<T extends LtiState>
     
     return state;
   }
-}
   
+  /**
+   * Get a state object keyed by its unique ID and validate the nonce
+   * that came with it.
+   * 
+   * @param id The unique ID of the required state object.
+   * @param claimedNonce The nonce that the client claims to have received.
+   * @return The state object or null if not found or timed out.
+   * @throws uk.ac.leedsbeckett.lti.LtiException If the claimed nonce doesn't match.
+   */
+  public T getState( String id, String claimedNonce ) throws LtiException
+  {
+    T state = peekState( id );
+    if ( state == null )
+      throw new LtiException( "Unknown or expired state ID." );
+    state.validateNonce( claimedNonce ); 
+    // If nonce matched...
+    state.generateNewNonce();
+    updateState( state );
+    return state;
+  }
+}
+

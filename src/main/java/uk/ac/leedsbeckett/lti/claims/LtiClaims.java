@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 import java.util.Set;
+import uk.ac.leedsbeckett.lti.services.ags.LtiAssessmentAndGradesServiceClaim;
 
 /**
  * A wrapper class for a standard jsonwebtoken Claims object. This provides
@@ -44,6 +45,7 @@ public class LtiClaims implements Claims, Serializable
   LtiToolPlatformClaim ltitoolplatform = null;
 
   LtiNamesRoleServiceClaim ltinamesroleservice = null;
+  LtiAssessmentAndGradesServiceClaim ltiassessmentandgradesservice = null;
 
   LtiDeepLinkingSettings ltideeplinkingsettings = null;
   
@@ -70,6 +72,8 @@ public class LtiClaims implements Claims, Serializable
       ltitoolplatform = new LtiToolPlatformClaim( wrapped );
     if ( wrapped.containsKey( LtiNamesRoleServiceClaim.NAME ) )
       ltinamesroleservice = new LtiNamesRoleServiceClaim( wrapped );
+    if ( wrapped.containsKey( LtiAssessmentAndGradesServiceClaim.NAME ) )
+      ltiassessmentandgradesservice = new LtiAssessmentAndGradesServiceClaim( wrapped );
     if ( wrapped.containsKey( LtiDeepLinkingSettings.NAME ) )
       ltideeplinkingsettings = new LtiDeepLinkingSettings( wrapped );
   }
@@ -132,6 +136,11 @@ public class LtiClaims implements Claims, Serializable
   public LtiNamesRoleServiceClaim getLtiNamesRoleService()
   {
     return ltinamesroleservice;
+  }
+
+  public LtiAssessmentAndGradesServiceClaim getLtiAssessmentAndGradesService()
+  {
+    return ltiassessmentandgradesservice;
   }
 
   public LtiDeepLinkingSettings getLtideeplinkingsettings()

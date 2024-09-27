@@ -24,21 +24,21 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class LtiServiceScopeSet
 {
-  private final ArrayList<LtiServiceScope> specsInOrder = new ArrayList<>();
+  private final ArrayList<LtiServiceScope> scopesInOrder = new ArrayList<>();
   String scopespec="";
   
   public void addScope( LtiServiceScope additionalscope )
   {
-    if ( StringUtils.isBlank( additionalscope.getSpecification() ) || specsInOrder.contains( additionalscope ) )
+    if ( StringUtils.isBlank( additionalscope.getSpecification() ) || scopesInOrder.contains( additionalscope ) )
       return;
     // if not already in, add the new scope
-    specsInOrder.add( additionalscope );
+    scopesInOrder.add( additionalscope );
     // make sure the scopes are sorted to ensure same set always gives same result
-    specsInOrder.sort(( LtiServiceScope o1, LtiServiceScope o2 ) -> o1.specification.compareTo(o2.specification ));
+    scopesInOrder.sort(( LtiServiceScope o1, LtiServiceScope o2 ) -> o1.specification.compareTo(o2.specification ));
     // concatenate scopes with space delimiter
     StringBuilder sb = new StringBuilder();
     boolean first = true;
-    for ( LtiServiceScope scope : specsInOrder )
+    for ( LtiServiceScope scope : scopesInOrder )
     {
       if ( !first ) sb.append( " " );
       first = false;
@@ -46,6 +46,11 @@ public class LtiServiceScopeSet
     }
     // Store the spec
     scopespec = sb.toString();
+  }
+  
+  public boolean containsScope( LtiServiceScope scope )
+  {
+    return scopesInOrder.contains( scope );
   }
   
   public String getScopeSpecification()

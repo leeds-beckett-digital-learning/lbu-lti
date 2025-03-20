@@ -4,6 +4,8 @@
  */
 package uk.ac.leedsbeckett.lti.resourcelink;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.io.Serializable;
 import java.util.HashMap;
 
@@ -17,6 +19,10 @@ public class LtiResourceLink implements Serializable
   String title;
   String text;
   String url;
+  
+  @JsonInclude(Include.NON_NULL)
+  LtiResourceLinkIFrame iframe;
+  
   HashMap<String,String> custom = new HashMap<>();
 
   public LtiResourceLink()
@@ -61,6 +67,16 @@ public class LtiResourceLink implements Serializable
   public void setUrl( String url )
   {
     this.url = url;
+  }
+
+  public LtiResourceLinkIFrame getIframe()
+  {
+    return iframe;
+  }
+
+  public void setIframe( LtiResourceLinkIFrame iframe )
+  {
+    this.iframe = iframe;
   }
 
   public HashMap<String, String> getCustom()

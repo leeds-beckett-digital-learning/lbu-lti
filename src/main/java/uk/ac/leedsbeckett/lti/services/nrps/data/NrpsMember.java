@@ -25,22 +25,62 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
 public class NrpsMember implements Serializable
 {
   static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );
   
+  private final String status;
+  private final String givenName;
+  private final String familyName;
+  private final String middleName;
   private final String name;
   private final String userId;
+  private final String email;
+  private final String lisPersonSourcedid;
+  private final String[] roles;
 
   public NrpsMember( 
-          @JsonProperty("name")    String name, 
-          @JsonProperty("user_id") String userId )
+          @JsonProperty("status")      String status, 
+          @JsonProperty("given_name")  String givenName, 
+          @JsonProperty("family_name") String familyName, 
+          @JsonProperty("middle_name") String middleName, 
+          @JsonProperty("name")        String name, 
+          @JsonProperty("user_id")     String userId, 
+          @JsonProperty("email")       String email, 
+          @JsonProperty("lis_person_sourcedid")     String lisPersonSourcedid, 
+          @JsonProperty("roles")       String[] roles )
   {
+    this.status = status;
+    this.givenName = givenName;
+    this.familyName = familyName;
+    this.middleName = middleName;
     this.name = name;
     this.userId = userId;
+    this.email = email;
+    this.lisPersonSourcedid = lisPersonSourcedid;
+    this.roles = roles;
   }
-  
+
+  public String getStatus()
+  {
+    return status;
+  }
+
+  public String getGivenName()
+  {
+    return givenName;
+  }
+
+  public String getFamilyName()
+  {
+    return familyName;
+  }
+
+  public String getMiddleName()
+  {
+    return middleName;
+  }
+    
   public String getName()
   {
     return name;
@@ -49,6 +89,21 @@ public class NrpsMember implements Serializable
   public String getUserId()
   {
     return userId;
+  }
+
+  public String getEmail()
+  {
+    return email;
+  }
+
+  public String getLisPersonSourcedid()
+  {
+    return lisPersonSourcedid;
+  }
+
+  public String[] getRoles()
+  {
+    return roles;
   }
   
   public void dumpToLog()

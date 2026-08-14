@@ -43,6 +43,7 @@ public class LtiClaims implements Claims, Serializable
   LtiResourceClaim     ltiresource     = null;
   LtiRoleClaims        ltiroles        = null;
   LtiToolPlatformClaim ltitoolplatform = null;
+  LtiLaunchPresentationClaim ltilaunchpresentation = null;
 
   LtiNamesRoleServiceClaim ltinamesroleservice = null;
   LtiAssessmentAndGradesServiceClaim ltiassessmentandgradesservice = null;
@@ -70,6 +71,8 @@ public class LtiClaims implements Claims, Serializable
       ltiroles = new LtiRoleClaims( wrapped );
     if ( wrapped.containsKey( LtiToolPlatformClaim.NAME ) )
       ltitoolplatform = new LtiToolPlatformClaim( wrapped );
+    if ( wrapped.containsKey( LtiLaunchPresentationClaim.NAME ) )
+      ltilaunchpresentation = new LtiLaunchPresentationClaim( wrapped );
     if ( wrapped.containsKey( LtiNamesRoleServiceClaim.NAME ) )
       ltinamesroleservice = new LtiNamesRoleServiceClaim( wrapped );
     if ( wrapped.containsKey( LtiAssessmentAndGradesServiceClaim.NAME ) )
@@ -131,6 +134,11 @@ public class LtiClaims implements Claims, Serializable
   public LtiToolPlatformClaim getLtiToolPlatform()
   {
     return ltitoolplatform;
+  }
+
+  public LtiLaunchPresentationClaim getLtiLaunchPresentation()
+  {
+    return ltilaunchpresentation;
   }
 
   public LtiNamesRoleServiceClaim getLtiNamesRoleService()

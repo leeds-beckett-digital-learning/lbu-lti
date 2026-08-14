@@ -25,7 +25,7 @@ import java.util.logging.Logger;
  *
  * @author maber01
  */
-@JsonIgnoreProperties({ "status", "given_name", "family_name", "middle_name", "email", "lis_person_sourcedid", "roles" })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NrpsMember implements Serializable
 {
   static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );

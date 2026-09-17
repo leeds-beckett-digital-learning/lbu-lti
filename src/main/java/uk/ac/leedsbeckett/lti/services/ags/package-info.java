@@ -6,7 +6,7 @@
  * Learning Tools Interoperability (LTI) Assignment and Grade Services Specification
  * https://www.imsglobal.org/spec/lti-ags/v2p0
  * 
- * Learning Tools Interoperability(LTI)® Assignment and Grade Services Version 2.0 OpenAPI Specs
+ * Learning Tools Interoperability(LTI) Assignment and Grade Services Version 2.0 OpenAPI Specs
  * https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/
  * 
  * Data types used in openapi

@@ -15,17 +15,16 @@
  */
 package uk.ac.leedsbeckett.lti.services.nrps.data;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import uk.ac.leedsbeckett.lti.json.BaseDeserializable;
 
 /**
  *
  * @author maber01
  */
-public class NrpsMember implements Serializable
+public class NrpsMember extends BaseDeserializable
 {
   static final Logger logger = Logger.getLogger( NrpsMember.class.getName() );
   
